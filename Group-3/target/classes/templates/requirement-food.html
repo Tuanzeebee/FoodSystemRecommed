@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Suggestion App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            margin: 0;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+         .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #e74c3c;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        
+        .container {
+            display: flex;
+            gap: 20px;
+            min-height: calc(100vh - 140px);
+        }
+        
+        .ingredients-panel {
+            flex: 1;
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .recipes-panel {
+            flex: 2;
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        h1, h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            padding: 10px 15px;
+            border-radius: 30px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            width: 100%;
+            font-size: 16px;
+        }
+        
+        .ingredient-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .ingredient-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px 10px;
+            current: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+        
+        .ingredient-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ingredient-item.selected {
+            background-color: #e8f5e9;
+            border-color: #4caf50;
+        }
+        
+        .ingredient-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .ingredient-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .recipe-card {
+            background-color: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+        }
+        
+        .recipe-image {
+            width: 200px;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .recipe-content {
+            padding: 20px;
+            flex: 1;
+        }
+        
+        .recipe-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .recipe-ingredients {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        
+        .recipe-ingredient {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .recipe-ingredient.selected {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .recipe-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .selected-ingredients {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .selected-tag {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .remove-tag {
+            current: pointer;
+        }
+        
+        .no-recipes {
+            text-align: center;
+            padding: 50px 0;
+            color: #888;
+            font-size: 18px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .no-recipes i {
+            font-size: 50px;
+            color: #ccc;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .recipe-card {
+                flex-direction: column;
+            }
+            
+            .recipe-image {
+                width: 100%;
+                height: 200px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo">CulinaryDelight</div>
+    <div class="nav-links">
+        <a href="#">Home</a>
+        <a href="#">Recipes</a>
+        <a th:href="@{/requirement-food}">Requirement Food</a>
+        <a th:href="@{/blog}">Blog</a>
+        <a th:href="@{/relax}">Relax</a>
+    </div>
+</header>
+    
+    <div class="main-content">
+        <div class="container">
+            <div class="ingredients-panel">
+                <h2>Chọn Nguyên Liệu</h2>
+                <input type="text" class="search-box" placeholder="Tìm kiếm nguyên liệu...">
+                
+                <div class="selected-ingredients" id="selected-ingredients">
+                    <!-- Selected ingredients will appear here -->
+                </div>
+                
+                <div class="ingredient-grid" id="ingredient-grid">
+                    <!-- Ingredients will be dynamically loaded here -->
+                </div>
+            </div>
+            
+            <div class="recipes-panel">
+                <h1>Các Món Ăn Gợi Ý</h1>
+                <div id="recipes-container">
+                    <div class="no-recipes">
+                        <i class="fas fa-utensils"></i>
+                        <p>Vui lòng chọn nguyên liệu để xem gợi ý món ăn</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sample data - in a real app, this would come from your database
+        const ingredients = [
+            { id: 1, name: "Thịt bò", icon: "fa-drumstick-bite" },
+            { id: 2, name: "Thịt heo", icon: "fa-bacon" },
+            { id: 3, name: "Gà", icon: "fa-drumstick-bite" },
+            { id: 4, name: "Cá", icon: "fa-fish" },
+            { id: 5, name: "Tôm", icon: "fa-shrimp" },
+            { id: 6, name: "Trứng", icon: "fa-egg" },
+            { id: 7, name: "Cà chua", icon: "fa-apple-alt" },
+            { id: 8, name: "Hành", icon: "fa-seedling" },
+            { id: 9, name: "Tỏi", icon: "fa-seedling" },
+            { id: 10, name: "Ớt", icon: "fa-pepper-hot" },
+            { id: 11, name: "Cà rốt", icon: "fa-carrot" },
+            { id: 12, name: "Khoai tây", icon: "fa-apple-alt" },
+            { id: 13, name: "Nấm", icon: "fa-seedling" },
+            { id: 14, name: "Đậu phụ", icon: "fa-cube" },
+            { id: 15, name: "Bắp cải", icon: "fa-leaf" },
+            { id: 16, name: "Gạo", icon: "fa-seedling" },
+            { id: 17, name: "Mì", icon: "fa-cookie" },
+            { id: 18, name: "Sữa", icon: "fa-wine-bottle" }
+        ];
+        
+        const recipes = [
+            {
+                id: 1,
+                name: "Bò Xào Rau Củ",
+                ingredients: [1, 7, 8, 11],
+                description: "Món bò xào rau củ thơm ngon, giàu dinh dưỡng với thịt bò mềm và rau củ tươi ngon.",
+                image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500"
+            },
+            {
+                id: 2,
+                name: "Cá Kho Tộ",
+                ingredients: [4, 8, 9, 10],
+                description: "Cá kho tộ đậm đà, thơm mùi nước mắm và gia vị, ăn kèm cơm nóng rất ngon.",
+                image: "https://images.unsplash.com/photo-1594706335364-8a732239de42?w=500"
+            },
+            {
+                id: 3,
+                name: "Trứng Chiên Thịt Băm",
+                ingredients: [2, 6, 8, 9],
+                description: "Món trứng chiên thịt băm đơn giản mà ngon miệng, phù hợp cho bữa sáng nhanh gọn.",
+                image: "https://images.unsplash.com/photo-1551185618-3af05a1ffcd5?w=500"
+            },
+            {
+                id: 4,
+                name: "Canh Cá Nấu Chua",
+                ingredients: [4, 7, 10, 15],
+                description: "Canh chua cá thanh mát, chua nhẹ, thích hợp cho ngày nóng bức.",
+                image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500"
+            },
+            {
+                id: 5,
+                name: "Thịt Kho Tàu",
+                ingredients: [2, 6, 8, 9],
+                description: "Thịt kho tàu đậm đà, béo ngậy với nước dừa và trứng, món ăn truyền thống dịp Tết.",
+                image: "https://images.unsplash.com/photo-1548940740-204726a19ec3?w=500"
+            },
+            {
+                id: 6,
+                name: "Gà Xào Nấm",
+                ingredients: [3, 13, 8, 9],
+                description: "Gà xào nấm thơm ngon, bổ dưỡng với nấm tươi và thịt gà mềm.",
+                image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=500"
+            },
+            {
+                id: 7,
+                name: "Đậu Phụ Sốt Cà Chua",
+                ingredients: [14, 7, 8, 9],
+                description: "Đậu phụ mềm hòa quyện với sốt cà chua chua ngọt, món chay ngon miệng.",
+                image: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=500"
+            }
+        ];
+        
+        // Initialize variables
+        let selectedIngredients = [];
+        
+        // Load ingredients
+        function loadIngredients() {
+            const grid = document.getElementById('ingredient-grid');
+            grid.innerHTML = '';
+            
+            ingredients.forEach(ingredient => {
+                const item = document.createElement('div');
+                item.className = 'ingredient-item';
+                item.dataset.id = ingredient.id;
+                
+                item.innerHTML = `
+                    <div class="ingredient-icon">
+                        <i class="fas ${ingredient.icon}"></i>
+                    </div>
+                    <div class="ingredient-name">${ingredient.name}</div>
+                `;
+                
+                // Add click event
+                item.addEventListener('click', () => toggleIngredient(ingredient));
+                
+                grid.appendChild(item);
+            });
+        }
+        
+        // Toggle ingredient selection
+        function toggleIngredient(ingredient) {
+            const index = selectedIngredients.findIndex(item => item.id === ingredient.id);
+            const ingredientEl = document.querySelector(`.ingredient-item[data-id="${ingredient.id}"]`);
+            
+            if (index > -1) {
+                // Remove ingredient
+                selectedIngredients.splice(index, 1);
+                ingredientEl.classList.remove('selected');
+            } else {
+                // Add ingredient
+                selectedIngredients.push(ingredient);
+                ingredientEl.classList.add('selected');
+            }
+            
+            updateSelectedTags();
+            updateRecipes();
+        }
+        
+        // Update selected ingredients tags
+        function updateSelectedTags() {
+            const container = document.getElementById('selected-ingredients');
+            container.innerHTML = '';
+            
+            selectedIngredients.forEach(ingredient => {
+                const tag = document.createElement('div');
+                tag.className = 'selected-tag';
+                tag.innerHTML = `
+                    <i class="fas ${ingredient.icon}"></i>
+                    ${ingredient.name}
+                    <span class="remove-tag" data-id="${ingredient.id}">×</span>
+                `;
+                container.appendChild(tag);
+            });
+            
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.remove-tag').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    removeIngredient(id);
+                    e.stopPropagation();
+                });
+            });
+        }
+        
+        // Remove ingredient by ID
+        function removeIngredient(id) {
+            const index = selectedIngredients.findIndex(item => item.id === id);
+            if (index > -1) {
+                selectedIngredients.splice(index, 1);
+                
+                // Update UI
+                const ingredientEl = document.querySelector(`.ingredient-item[data-id="${id}"]`);
+                if (ingredientEl) ingredientEl.classList.remove('selected');
+                
+                updateSelectedTags();
+                updateRecipes();
+            }
+        }
+        
+        // Update recipe suggestions based on selected ingredients
+        function updateRecipes() {
+            const container = document.getElementById('recipes-container');
+            
+            if (selectedIngredients.length === 0) {
+                container.innerHTML = `
+                    <div class="no-recipes">
+                        <i class="fas fa-utensils"></i>
+                        <p>Vui lòng chọn nguyên liệu để xem gợi ý món ăn</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Get selected ingredient IDs
+            const selectedIds = selectedIngredients.map(item => item.id);
+            
+            // Filter recipes that contain at least one selected ingredient
+            const matchedRecipes = recipes.filter(recipe => {
+                return recipe.ingredients.some(id => selectedIds.includes(id));
+            });
+            
+            if (matchedRecipes.length === 0) {
+                container.innerHTML = `
+                    <div class="no-recipes">
+                        <i class="fas fa-search"></i>
+                        <p>Không tìm thấy món ăn phù hợp với nguyên liệu đã chọn</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort recipes by number of matching ingredients (descending)
+            matchedRecipes.sort((a, b) => {
+                const aMatches = a.ingredients.filter(id => selectedIds.includes(id)).length;
+                const bMatches = b.ingredients.filter(id => selectedIds.includes(id)).length;
+                return bMatches - aMatches;
+            });
+            
+            // Render recipes
+            container.innerHTML = '';
+            matchedRecipes.forEach(recipe => {
+                const card = document.createElement('div');
+                card.className = 'recipe-card';
+                
+                // Get ingredient names for this recipe
+                const ingredientNames = recipe.ingredients.map(id => {
+                    const ingredient = ingredients.find(item => item.id === id);
+                    return ingredient ? ingredient.name : '';
+                }).filter(Boolean);
+                
+                // Create ingredient tags, highlighting selected ones
+                const ingredientTags = ingredientNames.map(name => {
+                    const isSelected = selectedIngredients.some(item => item.name === name);
+                    return `<span class="recipe-ingredient ${isSelected ? 'selected' : ''}">${name}</span>`;
+                }).join('');
+                
+                card.innerHTML = `
+                    <img src="${recipe.image}" alt="${recipe.name}" class="recipe-image">
+                    <div class="recipe-content">
+                        <h3 class="recipe-title">${recipe.name}</h3>
+                        <div class="recipe-ingredients">
+                            ${ingredientTags}
+                        </div>
+                        <p class="recipe-description">${recipe.description}</p>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // Search functionality
+        document.querySelector('.search-box').addEventListener('input', (e) => {
+            const searchText = e.target.value.toLowerCase();
+            
+            document.querySelectorAll('.ingredient-item').forEach(item => {
+                const ingredientName = item.querySelector('.ingredient-name').textContent.toLowerCase();
+                
+                if (ingredientName.includes(searchText)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+        
+        // Initialize the app
+        loadIngredients();
+        updateRecipes();
+    </script>
+</body>
+</html>

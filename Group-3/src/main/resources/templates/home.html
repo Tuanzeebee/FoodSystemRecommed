@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Recommendations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #e74c3c;
+        }
+        
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 50px;
+            padding: 8px 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-bar input {
+            border: none;
+            outline: none;
+            padding: 8px;
+            width: 200px;
+        }
+        
+        .search-bar button {
+            background: none;
+            border: none;
+            current: pointer;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .hero-section {
+            position: relative;
+            margin-bottom: 50px;
+            height: 450px;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .slider {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        .slide.active {
+            opacity: 1;
+        }
+        
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .slide-content {
+            position: absolute;
+            bottom: 60px;
+            left: 60px;
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .slide-content h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #e74c3c;
+        }
+        
+        .slide-content p {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background-color: #e74c3c;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .cta-button:hover {
+            background-color: #c0392b;
+        }
+        
+        .section-heading {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .section-heading h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .section-heading p {
+            color: #777;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .food-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .food-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .food-image {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .food-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .food-card:hover .food-image img {
+            transform: scale(1.1);
+        }
+        
+        .food-info {
+            padding: 20px;
+        }
+        
+        .food-info h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .food-info p {
+            color: #777;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        .food-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .rating {
+            display: flex;
+            align-items: center;
+            color: #f39c12;
+        }
+        
+        .time {
+            color: #777;
+            font-size: 14px;
+        }
+        
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 40px 0;
+            margin-top: 50px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+        
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #e74c3c;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column ul li a:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid #444;
+            color: #ccc;
+        }
+        
+        .slider-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            current: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .slider-dot.active {
+            background-color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">CulinaryDelight</div>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Recipes</a>
+                <a th:href="@{/requirement-food}">Requirement Food</a>
+                <a th:href="@{/blog}">Blog</a>
+                <a th:href="@{/relax}">Relax</a>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search recipes...">
+                <button>Search</button>
+            </div>
+        </header>
+
+        <p>
+            User: <span sec:authentication="principal.username"></span>
+            <br><br>
+            Role(s): <span sec:authentication="principal.authorities"></span>
+        </p>
+<!-- Add a logout button -->
+<form action="#" th:action="@{/logout}"
+method="POST">
+
+<input type="submit" value="Logout" class="btn btn-outline-primary mt-2" />
+
+</form>
+        <section class="hero-section">
+            <div class="slider">
+                <div class="slide active">
+                    <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe" alt="Food Image">
+                    <div class="slide-content">
+                        <h2>Delicious Summer Salad</h2>
+                        <p>Fresh, colorful, and packed with nutrients. This summer salad is the perfect dish for hot days and outdoor gatherings.</p>
+                        <a href="#" class="cta-button">View Recipe</a>
+                    </div>
+                </div>
+                <div class="slide">
+                    <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445" alt="Food Image">
+                    <div class="slide-content">
+                        <h2>Homemade Pizza</h2>
+                        <p>Create the perfect pizza at home with our simple yet delicious recipe. Customize with your favorite toppings!</p>
+                        <a href="#" class="cta-button">View Recipe</a>
+                    </div>
+                </div>
+                <div class="slide">
+                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38" alt="Food Image">
+                    <div class="slide-content">
+                        <h2>Gourmet Burgers</h2>
+                        <p>Elevate your burger game with these juicy, flavor-packed gourmet burgers. Perfect for weekend barbecues!</p>
+                        <a href="#" class="cta-button">View Recipe</a>
+                    </div>
+                </div>
+            </div>
+            <div class="slider-nav">
+                <div class="slider-dot active"></div>
+                <div class="slider-dot"></div>
+                <div class="slider-dot"></div>
+            </div>
+        </section>
+        
+        <section>
+            <div class="section-heading">
+                <h2>Popular Recipes</h2>
+                <p>Discover our most loved recipes, tried and tested by thousands of food enthusiasts</p>
+            </div>
+            
+            <div class="food-grid">
+                <div class="food-card">
+                    <div class="food-image">
+                        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd" alt="Vegetable Bowl">
+                    </div>
+                    <div class="food-info">
+                        <h3>Healthy Vegetable Bowl</h3>
+                        <p>A nutritious mix of roasted and fresh vegetables with quinoa and a tangy dressing. Perfect for a light lunch or dinner.</p>
+                        <div class="food-meta">
+                            <div class="rating">★★★★★ (123)</div>
+                            <div class="time">20 min</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="food-card">
+                    <div class="food-image">
+                        <img src="https://images.unsplash.com/photo-1484723091739-30a097e8f929" alt="Pancakes">
+                    </div>
+                    <div class="food-info">
+                        <h3>Fluffy Pancakes</h3>
+                        <p>Start your day right with these incredibly fluffy pancakes topped with fresh berries and maple syrup.</p>
+                        <div class="food-meta">
+                            <div class="rating">★★★★☆ (98)</div>
+                            <div class="time">15 min</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="food-card">
+                    <div class="food-image">
+                        <img src="https://images.unsplash.com/photo-1551183053-bf91a1d81141" alt="Pasta">
+                    </div>
+                    <div class="food-info">
+                        <h3>Creamy Mushroom Pasta</h3>
+                        <p>A rich and creamy pasta dish loaded with sautéed mushrooms, garlic, and herbs. A comforting dinner option.</p>
+                        <div class="food-meta">
+                            <div class="rating">★★★★★ (145)</div>
+                            <div class="time">25 min</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="food-card">
+                    <div class="food-image">
+                        <img src="https://images.unsplash.com/photo-1528207776546-365bb710ee93" alt="Smoothie Bowl">
+                    </div>
+                    <div class="food-info">
+                        <h3>Berry Smoothie Bowl</h3>
+                        <p>Thick smoothie bowl packed with antioxidant-rich berries and topped with granola, coconut, and fresh fruit.</p>
+                        <div class="food-meta">
+                            <div class="rating">★★★★☆ (87)</div>
+                            <div class="time">10 min</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <div class="section-heading">
+                <h2>Seasonal Favorites</h2>
+                <p>The best recipes to make the most of this season's fresh ingredients</p>
+            </div>
+            
+            <div class="food-grid">
+                <div class="food-card">
+                    <div class="food-image">
+                        <img src="https://images.unsplash.com/photo-1547592180-85f173990554" alt="Grilled Chicken">
+                    </div>
+                    <div class="food-info">
+                        <h3>Herb Grilled Chicken</h3>
+                        <p>Juicy grilled chicken marinated with fresh herbs and lemon. Perfect for summer barbecues with friends and family.</p>
+                        <div class="food-meta">
+                            <div class="rating">★★★★★ (156)</div>
+                            <div class="time">35 min</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="food-card">
+                    <div class="food-image">
+                        <img src="https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6" alt="Tomato Soup">
+                    </div>
+                    <div class="food-info">
+                        <h3>Roasted Tomato Soup</h3>
+                        <p>Flavorful soup made with oven-roasted tomatoes, garlic, and fresh basil. Served with crusty bread for dipping.</p>
+                        <div class="food-meta">
+                            <div class="rating">★★★★☆ (112)</div>
+                            <div class="time">40 min</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="food-card">
+                    <div class="food-image">
+                        <img src="https://images.unsplash.com/photo-1464500522458-1a29e7605a8d" alt="Fruit Salad">
+                    </div>
+                    <div class="food-info">
+                        <h3>Tropical Fruit Salad</h3>
+                        <p>A refreshing mix of tropical fruits with a lime-mint dressing. Perfect for breakfast or as a light dessert.</p>
+                        <div class="food-meta">
+                            <div class="rating">★★★★★ (78)</div>
+                            <div class="time">15 min</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="food-card">
+                    <div class="food-image">
+                        <img src="https://images.unsplash.com/photo-1546039907-7fa05f864c02" alt="Roasted Vegetables">
+                    </div>
+                    <div class="food-info">
+                        <h3>Honey Roasted Vegetables</h3>
+                        <p>Seasonal vegetables roasted to perfection with honey, herbs, and a hint of chili. A great side dish for any meal.</p>
+                        <div class="food-meta">
+                            <div class="rating">★★★★☆ (93)</div>
+                            <div class="time">30 min</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>CulinaryDelight</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Our Team</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Recipes</h3>
+                    <ul>
+                        <li><a href="#">Breakfast</a></li>
+                        <li><a href="#">Lunch</a></li>
+                        <li><a href="#">Dinner</a></li>
+                        <li><a href="#">Desserts</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Cooking Tips</a></li>
+                        <li><a href="#">Meal Plans</a></li>
+                        <li><a href="#">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Subscribe</h3>
+                    <p>Join our newsletter and get weekly recipe updates.</p>
+                    <div class="search-bar" style="margin-top: 15px;">
+                        <input type="text" placeholder="Your email">
+                        <button>Join</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                &copy; 2023 CulinaryDelight. All rights reserved.
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Simple slider functionality
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.slider-dot');
+        
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+            currentSlide = index;
+        }
+        
+        // Add click event to dots
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                showSlide(index);
+            });
+        });
+        
+        // Auto slide
+        setInterval(() => {
+            let nextSlide = (currentSlide + 1) % slides.length;
+            showSlide(nextSlide);
+        }, 5000);
+    </script>
+</body>
+</html>
+
