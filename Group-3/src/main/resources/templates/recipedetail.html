@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title th:text="${recipe.name} + ' - Recipe Detail'">Recipe Detail</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f8f8;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .logo a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .recipe-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        
+        .recipe-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .recipe-description {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 800px;
+            margin-bottom: 2rem;
+        }
+        
+        .recipe-image-container {
+            width: 100%;
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .recipe-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .meta-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff7e5f;
+        }
+        
+        .meta-label {
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        .recipe-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 3rem;
+        }
+        
+        .ingredients-section,
+        .steps-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #444;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #ff7e5f;
+        }
+        
+        .ingredients-list {
+            list-style-type: none;
+        }
+        
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .ingredient-item:last-child {
+            border-bottom: none;
+        }
+        
+        .ingredient-icon {
+            font-size: 18px;
+            width: 24px;
+            margin-right: 10px;
+            color: #ff7e5f;
+        }
+        
+        .ingredient-name {
+            font-size: 1rem;
+            color: #555;
+        }
+        
+        .steps-list {
+            list-style-type: none;
+            counter-reset: step-counter;
+        }
+        
+        .step-item {
+            position: relative;
+            padding: 1.5rem 0 1.5rem 3rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .step-item:last-child {
+            border-bottom: none;
+        }
+        
+        .step-item::before {
+            content: counter(step-counter);
+            counter-increment: step-counter;
+            position: absolute;
+            left: 0;
+            top: 1.5rem;
+            width: 30px;
+            height: 30px;
+            background-color: #ff7e5f;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .step-description {
+            font-size: 1rem;
+            color: #555;
+            line-height: 1.7;
+        }
+        
+        .back-to-recipes {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #ff7e5f;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-to-recipes:hover {
+            text-decoration: underline;
+        }
+        
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+        
+        @media (max-width: 768px) {
+            .recipe-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .recipe-header {
+                margin-bottom: 2rem;
+            }
+            
+            .recipe-title {
+                font-size: 2rem;
+            }
+            
+            .recipe-image-container {
+                height: 300px;
+            }
+            
+            .meta-item {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <a href="/">Recipe Collection</a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <a href="/" class="back-to-recipes">← Back to Recipes</a>
+        
+        <div th:if="${recipe}" class="recipe-detail">
+            <div class="recipe-header">
+                <h1 class="recipe-title" th:text="${recipe.name}">Recipe Title</h1>
+                <p class="recipe-description" th:text="${recipe.description}">Recipe description goes here.</p>
+                
+                <div class="recipe-image-container">
+                    <img class="recipe-image" th:src="${recipe.image != null ? recipe.image : '/images/default-recipe.jpg'}" alt="Recipe Image">
+                </div>
+                
+                <div class="recipe-meta">
+                    <div class="meta-item">
+                        <span class="meta-value" th:text="${#lists.size(recipe.ingredients)}">8</span>
+                        <span class="meta-label">Ingredients</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-value" th:text="${#lists.size(recipe.steps)}">5</span>
+                        <span class="meta-label">Steps</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recipe-content">
+                <div class="ingredients-section">
+                    <h2 class="section-title">Ingredients</h2>
+                    <ul class="ingredients-list">
+                        <li th:each="ingredient : ${recipe.ingredients}" class="ingredient-item">
+                            <i class="fas fa-plus-circle ingredient-icon" th:class="${ingredient.icon != null ? ingredient.icon : 'fas fa-plus-circle'}"></i>
+                            <span class="ingredient-name" th:text="${ingredient.name}">Ingredient name</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="steps-section">
+                    <h2 class="section-title">Preparation Steps</h2>
+                    <ol class="steps-list">
+                        <li th:each="step : ${recipe.steps}" class="step-item">
+                            <p class="step-description" th:text="${step.description}">Step description goes here.</p>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div th:unless="${recipe}" class="error-message" style="text-align: center; padding: 3rem;">
+            <h2>Recipe Not Found</h2>
+            <p>The recipe you're looking for doesn't exist or has been removed.</p>
+            <a href="/" class="back-to-recipes" style="margin-top: 1rem; display: inline-block;">Browse All Recipes</a>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Recipe Collection. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

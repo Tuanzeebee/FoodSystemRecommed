@@ -10,4 +10,5 @@ public class RecipeDTO {
     private String image;
     private Set<IngredientDTO> ingredients;
     private Set<StepDTO> steps;
+    private Boolean isSavedByCurrentUser;
 }

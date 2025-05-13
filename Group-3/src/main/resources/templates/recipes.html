@@ -223,7 +223,7 @@
                         <span th:text="${#lists.size(recipe.steps)} + ' steps'">4 steps</span>
                     </div>
                     
-                    <a th:href="@{'/recipes/' + ${recipe.id}}" class="view-button">View Recipe</a>
+                    <a th:href="@{'/recipe/view/' + ${recipe.id}}" class="view-button">View Recipe</a>
                 </div>
             </div>
         </div>
@@ -322,7 +322,7 @@
                         <span>${recipe.steps ? recipe.steps.length : 0} steps</span>
                     </div>
                     
-                    <a href="/recipes/${recipe.id}" class="view-button">View Recipe</a>
+            <a href="/recipe/view/${recipe.id}" class="view-button">View Recipe</a>
                 </div>
             `;
             

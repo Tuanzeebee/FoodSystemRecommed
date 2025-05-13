@@ -57,6 +57,11 @@ public class UserService {
                 })
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+    // Thêm phương thức này vào UserService
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+    }    
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }

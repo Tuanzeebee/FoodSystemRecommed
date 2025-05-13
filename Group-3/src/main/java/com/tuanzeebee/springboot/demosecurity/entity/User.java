@@ -64,5 +64,6 @@ public class User {
     
     @ManyToMany(mappedBy = "following")
     private Set<User> followers = new HashSet<>();
+
     
 }

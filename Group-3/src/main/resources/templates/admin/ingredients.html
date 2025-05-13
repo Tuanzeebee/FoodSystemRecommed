@@ -25,6 +25,20 @@
       background-color: #28a745;
       border-color: #28a745;
     }
+    .icon-preview {
+      font-size: 24px;
+      margin-right: 10px;
+      color: #3e8ef7;
+    }
+    .icon-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-select {
+      max-height: 200px;
+      overflow-y: auto;
+    }
   </style>
 </head>
 
@@ -65,9 +79,8 @@
                   <tr th:each="ingredient, iStat : ${ingredients}">
                     <td th:text="${iStat.index + 1}"></td>
                     <td th:text="${ingredient.name}"></td>
-                    <td>
-                      <img th:if="${ingredient.icon}" th:src="${ingredient.icon}" alt="icon" width="30" height="30">
-                      <span th:unless="${ingredient.icon}">No icon</span>
+                    <td class="text-center">
+                      <i th:class="${ingredient.icon ?: 'fas fa-plus-circle'}" class="fas fa-plus-circle" style="font-size: 24px;"></i>
                     </td>
                     <td>
                       <button class="btn btn-primary btn-sm edit-btn" 
@@ -111,8 +124,35 @@
               <input type="text" class="form-control" id="name" name="name" required>
             </div>
             <div class="mb-3">
-              <label for="icon" class="form-label">Icon URL</label>
-              <input type="text" class="form-control" id="icon" name="icon">
+              <label for="icon" class="form-label">Select Icon</label>
+              <div class="input-group">
+                <span class="input-group-text icon-preview">
+                  <i id="add-preview-icon" class="fas fa-plus-circle"></i>
+                </span>
+                <select class="form-select" id="icon" name="icon" onchange="updateIconPreview('add-preview-icon', this.value)">
+                  <option value="fas fa-plus-circle">Plus Circle</option>
+                  <option value="fas fa-apple-alt">Apple</option>
+                  <option value="fas fa-carrot">Carrot</option>
+                  <option value="fas fa-drumstick-bite">Meat</option>
+                  <option value="fas fa-fish">Fish</option>
+                  <option value="fas fa-egg">Egg</option>
+                  <option value="fas fa-bread-slice">Bread</option>
+                  <option value="fas fa-cheese">Cheese</option>
+                  <option value="fas fa-pepper-hot">Pepper</option>
+                  <option value="fas fa-lemon">Lemon</option>
+                  <option value="fas fa-seedling">Herb</option>
+                  <option value="fas fa-cookie">Cookie</option>
+                  <option value="fas fa-ice-cream">Ice cream</option>
+                  <option value="fas fa-pizza-slice">Pizza</option>
+                  <option value="fas fa-bone">Bone</option>
+                  <option value="fas fa-bacon">Bacon</option>
+                  <option value="fas fa-hamburger">Hamburger</option>
+                  <option value="fas fa-wine-bottle">Wine Bottle</option>
+                  <option value="fas fa-wine-glass-alt">Wine Glass</option>
+                  <option value="fas fa-mug-hot">Hot Drink</option>
+                  <option value="fas fa-utensils">Utensils</option>
+                </select>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -140,8 +180,35 @@
               <input type="text" class="form-control" id="edit-name" name="name" required>
             </div>
             <div class="mb-3">
-              <label for="edit-icon" class="form-label">Icon URL</label>
-              <input type="text" class="form-control" id="edit-icon" name="icon">
+              <label for="edit-icon" class="form-label">Select Icon</label>
+              <div class="input-group">
+                <span class="input-group-text icon-preview">
+                  <i id="edit-preview-icon" class="fas fa-plus-circle"></i>
+                </span>
+                <select class="form-select" id="edit-icon" name="icon" onchange="updateIconPreview('edit-preview-icon', this.value)">
+                  <option value="fas fa-plus-circle">Plus Circle</option>
+                  <option value="fas fa-apple-alt">Apple</option>
+                  <option value="fas fa-carrot">Carrot</option>
+                  <option value="fas fa-drumstick-bite">Meat</option>
+                  <option value="fas fa-fish">Fish</option>
+                  <option value="fas fa-egg">Egg</option>
+                  <option value="fas fa-bread-slice">Bread</option>
+                  <option value="fas fa-cheese">Cheese</option>
+                  <option value="fas fa-pepper-hot">Pepper</option>
+                  <option value="fas fa-lemon">Lemon</option>
+                  <option value="fas fa-seedling">Herb</option>
+                  <option value="fas fa-cookie">Cookie</option>
+                  <option value="fas fa-ice-cream">Ice cream</option>
+                  <option value="fas fa-pizza-slice">Pizza</option>
+                  <option value="fas fa-bone">Bone</option>
+                  <option value="fas fa-bacon">Bacon</option>
+                  <option value="fas fa-hamburger">Hamburger</option>
+                  <option value="fas fa-wine-bottle">Wine Bottle</option>
+                  <option value="fas fa-wine-glass-alt">Wine Glass</option>
+                  <option value="fas fa-mug-hot">Hot Drink</option>
+                  <option value="fas fa-utensils">Utensils</option>
+                </select>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -177,17 +244,35 @@
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    function updateIconPreview(previewId, iconClass) {
+      // Remove previous classes and add new one
+      const previewIcon = document.getElementById(previewId);
+      previewIcon.className = '';
+      previewIcon.className = iconClass;
+    }
+    
     document.addEventListener('DOMContentLoaded', function() {
       // Handle edit button click
       document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', function() {
           const id = this.getAttribute('data-id');
           const name = this.getAttribute('data-name');
-          const icon = this.getAttribute('data-icon');
+          const icon = this.getAttribute('data-icon') || 'fas fa-plus-circle';
           
           document.getElementById('edit-id').value = id;
           document.getElementById('edit-name').value = name;
-          document.getElementById('edit-icon').value = icon;
+          
+          // Set the selected option in dropdown
+          const iconSelect = document.getElementById('edit-icon');
+          for (let i = 0; i < iconSelect.options.length; i++) {
+            if (iconSelect.options[i].value === icon) {
+              iconSelect.selectedIndex = i;
+              break;
+            }
+          }
+          
+          // Update the preview icon
+          updateIconPreview('edit-preview-icon', icon);
         });
       });
       
