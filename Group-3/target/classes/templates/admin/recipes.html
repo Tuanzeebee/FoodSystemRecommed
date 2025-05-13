@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recipes Management</title>
+  <link rel="shortcut icon" type="image/png" href="../assets/images/logos/favicon.png" />
+  <link rel="stylesheet" href="../assets/css/styles.min.css" />
+</head>
+
+<body>
+  <!--  Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+    <!-- Sidebar Start -->
+    <div th:replace="~{admin/layout/aside :: aside}"></div>
+    <!--  Sidebar End -->
+    <!--  Main wrapper -->
+    <div class="body-wrapper">
+      <div class="container-fluid">
+        <div class="container-fluid">
+          <!-- Hiển thị thông báo -->
+          <div class="alert alert-dismissible fade show" th:if="${message != null}" th:classappend="${message.type}"
+              role="alert">
+            <strong th:text="${message.content}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+          
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title fw-semibold mb-4">Quản lý công thức</h5>
+              <div class="d-flex justify-content-end mb-3">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
+                  <i class="ti ti-plus"></i> Thêm công thức mới
+                </button>
+              </div>
+              
+              <!-- Recipes Table -->
+              <div class="table-responsive">
+                <table class="table text-nowrap mb-0 align-middle">
+                  <thead class="text-dark fs-4">
+                    <tr>
+                      <th class="border-bottom-0">
+                        <h6 class="fw-semibold mb-0">ID</h6>
+                      </th>
+                      <th class="border-bottom-0">
+                        <h6 class="fw-semibold mb-0">Image</h6>
+                      </th>
+                      <th class="border-bottom-0">
+                        <h6 class="fw-semibold mb-0">Name</h6>
+                      </th>
+                      <th class="border-bottom-0">
+                        <h6 class="fw-semibold mb-0">Description</h6>
+                      </th>
+                      <th class="border-bottom-0">
+                        <h6 class="fw-semibold mb-0">Actions</h6>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="recipe : ${recipes}">
+                      <td class="border-bottom-0"><h6 class="fw-semibold mb-0" th:text="${recipe.id}"></h6></td>
+                      <td class="border-bottom-0">
+                        <img th:if="${recipe.image}" th:src="${recipe.image}" alt="Recipe Image" width="50" height="50" class="rounded">
+                        <div th:unless="${recipe.image}" class="bg-light rounded" style="width:50px;height:50px;"></div>
+                      </td>
+                      <td class="border-bottom-0"><p class="mb-0 fw-normal" th:text="${recipe.name}"></p></td>
+                      <td class="border-bottom-0"><p class="mb-0 fw-normal" th:text="${#strings.abbreviate(recipe.description,100)}"></p></td>
+                      <td class="border-bottom-0">
+                        <button type="button" class="btn btn-info btn-sm" 
+                          th:data-id="${recipe.id}"
+                          th:data-name="${recipe.name}"
+                          th:data-desc="${recipe.description}"
+                          th:data-image="${recipe.image}"
+                          th:data-ingredients="${#strings.listJoin(recipe.ingredients.![id],',')}"
+                          onclick="prepareEditModal(this)"
+                          data-bs-toggle="modal" data-bs-target="#editRecipeModal">
+                          <i class="ti ti-edit"></i> Edit
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" 
+                          th:data-id="${recipe.id}"
+                          th:data-name="${recipe.name}"
+                          onclick="prepareDeleteModal(this)"
+                          data-bs-toggle="modal" data-bs-target="#deleteRecipeModal">
+                          <i class="ti ti-trash"></i> Delete
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Recipe Modal -->
+  <div class="modal fade" id="addRecipeModal" tabindex="-1" aria-labelledby="addRecipeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addRecipeModalLabel">Add New Recipe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form th:action="@{/admin/recipes/add}" method="post" enctype="multipart/form-data">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="name" class="form-label">Recipe Name</label>
+              <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="imageFile" class="form-label">Image</label>
+              <input type="file" class="form-control" id="imageFile" name="imageFile">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Ingredients</label>
+              <div class="row" id="ingredientsList">
+                <div class="col-md-4 mb-2" th:each="ingredient : ${ingredients}">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="ingredients" th:value="${ingredient.id}" 
+                           th:id="'ingredient-' + ${ingredient.id}">
+                    <label class="form-check-label" th:for="'ingredient-' + ${ingredient.id}" th:text="${ingredient.name}"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save Recipe</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Recipe Modal -->
+  <div class="modal fade" id="editRecipeModal" tabindex="-1" aria-labelledby="editRecipeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editRecipeModalLabel">Edit Recipe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form th:action="@{/admin/recipes/update}" method="post" enctype="multipart/form-data">
+          <div class="modal-body">
+            <input type="hidden" id="editId" name="id">
+            <div class="mb-3">
+              <label for="editName" class="form-label">Recipe Name</label>
+              <input type="text" class="form-control" id="editName" name="name" required>
+            </div>
+            <div class="mb-3">
+              <label for="editDescription" class="form-label">Description</label>
+              <textarea class="form-control" id="editDescription" name="description" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="editImageFile" class="form-label">Image</label>
+              <input type="file" class="form-control" id="editImageFile" name="imageFile">
+              <small class="text-muted">Leave empty to keep current image</small>
+              <input type="hidden" id="currentImage" name="currentImage">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Ingredients</label>
+              <div class="row" id="editIngredientsList">
+                <div class="col-md-4 mb-2" th:each="ingredient : ${ingredients}">
+                  <div class="form-check">
+                    <input class="form-check-input edit-ingredient" type="checkbox" name="ingredients" th:value="${ingredient.id}" 
+                           th:id="'editIngredient-' + ${ingredient.id}">
+                    <label class="form-check-label" th:for="'editIngredient-' + ${ingredient.id}" th:text="${ingredient.name}"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-success">Update Recipe</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+   <!-- Thêm Delete Confirmation Modal -->
+   <div class="modal fade" id="deleteRecipeModal" tabindex="-1" aria-labelledby="deleteRecipeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteRecipeModalLabel">Xác nhận xóa</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Bạn có chắc chắn muốn xóa công thức "<span id="deleteRecipeName"></span>"?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Xóa</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="../assets/libs/jquery/dist/jquery.min.js"></script>
+  <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+  
+  <script>
+    $(document).ready(function() {
+      setTimeout(function() {
+        $(".alert").alert('close');
+      }, 5000);
+    });
+    function prepareEditModal(button) {
+      console.log("Recipe ID:", button.getAttribute('data-id'));
+      console.log("Ingredients attr:", button.getAttribute('data-ingredients'));  
+      const id = button.getAttribute('data-id');
+      const name = button.getAttribute('data-name');
+      const description = button.getAttribute('data-desc');
+      const image = button.getAttribute('data-image');
+      const ingredientsAttr = button.getAttribute('data-ingredients');
+      
+      document.getElementById('editId').value = id;
+      document.getElementById('editName').value = name;
+      document.getElementById('editDescription').value = description;
+      document.getElementById('currentImage').value = image;
+      
+      // Reset all ingredient checkboxes
+      document.querySelectorAll('.edit-ingredient').forEach(checkbox => {
+        checkbox.checked = false;
+      });
+      
+      // Check selected ingredients
+      if (ingredientsAttr && ingredientsAttr.trim() !== '') {
+        const ingredients = ingredientsAttr.split(',').map(Number);
+        ingredients.forEach(ingredientId => {
+          const checkbox = document.getElementById('editIngredient-' + ingredientId);
+          if (checkbox) {
+            checkbox.checked = true;
+          }
+        });
+      }
+    }
+    function prepareDeleteModal(button) {
+      const id = button.getAttribute('data-id');
+      const name = button.getAttribute('data-name');
+      
+      // Hiển thị tên công thức trong modal
+      document.getElementById('deleteRecipeName').textContent = name;
+      
+      // Cập nhật href cho nút xác nhận xóa
+      document.getElementById('confirmDeleteBtn').href = '/admin/recipes/delete/' + id;
+    }
+  </script>
+</body>
+</html>

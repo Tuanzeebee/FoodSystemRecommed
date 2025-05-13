@@ -93,10 +93,16 @@
         }
         
         .ingredient-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+        /* --- THÊM VÀO --- */
+        max-height: 400px; /* Giới hạn chiều cao tối đa (bạn có thể điều chỉnh giá trị này) */
+        overflow-y: auto;  /* Hiển thị thanh cuộn dọc khi cần */
+        /* Optional: Thêm chút padding bên phải để thanh cuộn không che khuất nội dung */
+        padding-right: 8px;
+        /* --- KẾT THÚC THÊM --- */
         }
         
         .ingredient-item {
@@ -141,12 +147,26 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             display: flex;
+            align-items: stretch; /* Thay đổi từ center sang stretch */
         }
         
         .recipe-image {
             width: 200px;
-            height: 150px;
+            height: auto; /* Thay đổi từ 150px sang auto */
             object-fit: cover;
+            flex-shrink: 0;
+            align-self: stretch; /* Thêm dòng này */
+        }
+        
+        .recipe-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* Giới hạn số dòng hiển thị */
+            -webkit-box-orient: vertical;
+            max-height: 63px; /* Tương đương 3 dòng với line-height: 1.5 */
         }
         
         .recipe-content {
@@ -179,12 +199,6 @@
         .recipe-ingredient.selected {
             background-color: #e8f5e9;
             color: #2e7d32;
-        }
-        
-        .recipe-description {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.5;
         }
         
         .selected-ingredients {
@@ -245,20 +259,38 @@
                 display: none;
             }
         }
+        .view-button {
+            display: inline-block;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            border: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            width: fit-content;
+        }
+        
+        .view-button:hover {
+            background: linear-gradient(to right, #e86e50, #faa768);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+        }
+        
+        .view-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
-<header>
-    <div class="logo">CulinaryDelight</div>
-    <div class="nav-links">
-        <a href="#">Home</a>
-        <a href="#">Recipes</a>
-        <a th:href="@{/requirement-food}">Requirement Food</a>
-        <a th:href="@{/blog}">Blog</a>
-        <a th:href="@{/relax}">Relax</a>
-    </div>
-</header>
-    
+    <div th:replace="~{/asideuser :: aside}"></div>
     <div class="main-content">
         <div class="container">
             <div class="ingredients-panel">
@@ -285,259 +317,324 @@
             </div>
         </div>
     </div>
-    
-    <script>
-        // Sample data - in a real app, this would come from your database
-        const ingredients = [
-            { id: 1, name: "Thịt bò", icon: "fa-drumstick-bite" },
-            { id: 2, name: "Thịt heo", icon: "fa-bacon" },
-            { id: 3, name: "Gà", icon: "fa-drumstick-bite" },
-            { id: 4, name: "Cá", icon: "fa-fish" },
-            { id: 5, name: "Tôm", icon: "fa-shrimp" },
-            { id: 6, name: "Trứng", icon: "fa-egg" },
-            { id: 7, name: "Cà chua", icon: "fa-apple-alt" },
-            { id: 8, name: "Hành", icon: "fa-seedling" },
-            { id: 9, name: "Tỏi", icon: "fa-seedling" },
-            { id: 10, name: "Ớt", icon: "fa-pepper-hot" },
-            { id: 11, name: "Cà rốt", icon: "fa-carrot" },
-            { id: 12, name: "Khoai tây", icon: "fa-apple-alt" },
-            { id: 13, name: "Nấm", icon: "fa-seedling" },
-            { id: 14, name: "Đậu phụ", icon: "fa-cube" },
-            { id: 15, name: "Bắp cải", icon: "fa-leaf" },
-            { id: 16, name: "Gạo", icon: "fa-seedling" },
-            { id: 17, name: "Mì", icon: "fa-cookie" },
-            { id: 18, name: "Sữa", icon: "fa-wine-bottle" }
-        ];
-        
-        const recipes = [
-            {
-                id: 1,
-                name: "Bò Xào Rau Củ",
-                ingredients: [1, 7, 8, 11],
-                description: "Món bò xào rau củ thơm ngon, giàu dinh dưỡng với thịt bò mềm và rau củ tươi ngon.",
-                image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500"
-            },
-            {
-                id: 2,
-                name: "Cá Kho Tộ",
-                ingredients: [4, 8, 9, 10],
-                description: "Cá kho tộ đậm đà, thơm mùi nước mắm và gia vị, ăn kèm cơm nóng rất ngon.",
-                image: "https://images.unsplash.com/photo-1594706335364-8a732239de42?w=500"
-            },
-            {
-                id: 3,
-                name: "Trứng Chiên Thịt Băm",
-                ingredients: [2, 6, 8, 9],
-                description: "Món trứng chiên thịt băm đơn giản mà ngon miệng, phù hợp cho bữa sáng nhanh gọn.",
-                image: "https://images.unsplash.com/photo-1551185618-3af05a1ffcd5?w=500"
-            },
-            {
-                id: 4,
-                name: "Canh Cá Nấu Chua",
-                ingredients: [4, 7, 10, 15],
-                description: "Canh chua cá thanh mát, chua nhẹ, thích hợp cho ngày nóng bức.",
-                image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500"
-            },
-            {
-                id: 5,
-                name: "Thịt Kho Tàu",
-                ingredients: [2, 6, 8, 9],
-                description: "Thịt kho tàu đậm đà, béo ngậy với nước dừa và trứng, món ăn truyền thống dịp Tết.",
-                image: "https://images.unsplash.com/photo-1548940740-204726a19ec3?w=500"
-            },
-            {
-                id: 6,
-                name: "Gà Xào Nấm",
-                ingredients: [3, 13, 8, 9],
-                description: "Gà xào nấm thơm ngon, bổ dưỡng với nấm tươi và thịt gà mềm.",
-                image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=500"
-            },
-            {
-                id: 7,
-                name: "Đậu Phụ Sốt Cà Chua",
-                ingredients: [14, 7, 8, 9],
-                description: "Đậu phụ mềm hòa quyện với sốt cà chua chua ngọt, món chay ngon miệng.",
-                image: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=500"
+
+<script>
+    // Biến lưu trữ dữ liệu - sẽ được điền bởi API
+    let ingredients = [];
+    let recipes = [];
+    let selectedIngredients = []; // Danh sách nguyên liệu người dùng đã chọn
+
+    /**
+     * Hàm bất đồng bộ để gọi API lấy dữ liệu nguyên liệu và món ăn TỪ BACKEND.
+     * Cần phải có backend server chạy và cung cấp dữ liệu tại các đường dẫn này.
+     */
+    async function fetchData() {
+        console.log("Bắt đầu lấy dữ liệu từ API backend...");
+        try {
+            // Lấy danh sách nguyên liệu
+            console.log("Đang gọi /api/ingredients...");
+            const ingRes = await fetch('/api/ingredients'); // <<< GỌI API NGUYÊN LIỆU
+            if (!ingRes.ok) {
+                // Ném lỗi nếu request không thành công (vd: 404, 500)
+                throw new Error(`HTTP error! status: ${ingRes.status} khi gọi /api/ingredients`);
             }
-        ];
-        
-        // Initialize variables
-        let selectedIngredients = [];
-        
-        // Load ingredients
-        function loadIngredients() {
-            const grid = document.getElementById('ingredient-grid');
-            grid.innerHTML = '';
-            
-            ingredients.forEach(ingredient => {
-                const item = document.createElement('div');
-                item.className = 'ingredient-item';
-                item.dataset.id = ingredient.id;
-                
-                item.innerHTML = `
-                    <div class="ingredient-icon">
-                        <i class="fas ${ingredient.icon}"></i>
-                    </div>
-                    <div class="ingredient-name">${ingredient.name}</div>
-                `;
-                
-                // Add click event
-                item.addEventListener('click', () => toggleIngredient(ingredient));
-                
-                grid.appendChild(item);
-            });
-        }
-        
-        // Toggle ingredient selection
-        function toggleIngredient(ingredient) {
-            const index = selectedIngredients.findIndex(item => item.id === ingredient.id);
-            const ingredientEl = document.querySelector(`.ingredient-item[data-id="${ingredient.id}"]`);
-            
-            if (index > -1) {
-                // Remove ingredient
-                selectedIngredients.splice(index, 1);
-                ingredientEl.classList.remove('selected');
+            // Chuyển đổi response thành JSON và gán vào biến ingredients
+            ingredients = await ingRes.json();
+            console.log("Lấy nguyên liệu từ API thành công:", ingredients);
+            // Kiểm tra định dạng cơ bản
+             if (!Array.isArray(ingredients)) {
+                 console.warn("Dữ liệu trả về từ /api/ingredients không phải là một mảng!");
+                 ingredients = []; // Reset về mảng rỗng nếu sai định dạng
+             }
+
+
+            // Lấy danh sách món ăn
+            console.log("Đang gọi /api/recipes...");
+            const recRes = await fetch('/api/recipes');    // <<< GỌI API MÓN ĂN
+            if (!recRes.ok) {
+                throw new Error(`HTTP error! status: ${recRes.status} khi gọi /api/recipes`);
+            }
+             // Chuyển đổi response thành JSON và gán vào biến recipes
+            recipes = await recRes.json();
+            console.log("Lấy món ăn từ API thành công:", recipes);
+            // Kiểm tra định dạng cơ bản và cấu trúc 'ingredients' bên trong recipes
+            if (!Array.isArray(recipes)) {
+                console.warn("Dữ liệu trả về từ /api/recipes không phải là một mảng!");
+                recipes = []; // Reset nếu sai định dạng
             } else {
-                // Add ingredient
-                selectedIngredients.push(ingredient);
-                ingredientEl.classList.add('selected');
+                recipes.forEach(recipe => {
+                    if (!Array.isArray(recipe.ingredients)) {
+                        console.warn(`Món ăn '${recipe.name}' (ID: ${recipe.id}) từ API thiếu mảng 'ingredients' chứa ID nguyên liệu.`);
+                        // Có thể gán mảng rỗng để tránh lỗi sau này: recipe.ingredients = [];
+                    }
+                });
             }
-            
+
+            // === KHỞI TẠO GIAO DIỆN SAU KHI LẤY DỮ LIỆU THÀNH CÔNG ===
+            console.log("Khởi tạo giao diện với dữ liệu từ API...");
+            loadIngredients(); // Hiển thị lưới nguyên liệu
+            updateRecipes();   // Cập nhật hiển thị món ăn (ban đầu sẽ là "chọn nguyên liệu")
+            console.log("Khởi tạo giao diện hoàn tất.");
+
+        } catch (error) {
+            console.error("Lỗi nghiêm trọng khi lấy dữ liệu từ API:", error);
+            // Hiển thị thông báo lỗi trên giao diện
+            const recipesContainer = document.getElementById('recipes-container');
+            if(recipesContainer) {
+                 recipesContainer.innerHTML = `<div class="error-message"><strong>Lỗi tải dữ liệu!</strong> Không thể kết nối hoặc lấy dữ liệu từ server. Vui lòng kiểm tra xem backend API đã chạy chưa và đường dẫn có đúng không. <br><small>Chi tiết lỗi: ${error.message}</small></div>`;
+            }
+             const ingredientsGrid = document.getElementById('ingredient-grid');
+             if(ingredientsGrid){
+                ingredientsGrid.innerHTML = `<div class="error-message"><strong>Lỗi tải nguyên liệu!</strong><br><small>${error.message}</small></div>`;
+             }
+        }
+    }
+
+    /**
+     * Hiển thị danh sách nguyên liệu lên lưới
+     * (Giữ nguyên logic như trước)
+     */
+    function loadIngredients() {
+        const grid = document.getElementById('ingredient-grid');
+        if (!grid) {
+            console.error("Không tìm thấy phần tử #ingredient-grid");
+            return;
+        }
+        grid.innerHTML = ''; // Xóa nội dung cũ
+
+         if (!Array.isArray(ingredients) || ingredients.length === 0) {
+             console.warn("Không có dữ liệu nguyên liệu hợp lệ để hiển thị.");
+             // Có thể hiển thị thông báo ở đây nếu muốn
+             grid.innerHTML = '<p>Không có nguyên liệu nào được tải.</p>';
+             return;
+        }
+
+
+        ingredients.forEach(ingredient => {
+             if (!ingredient || typeof ingredient.id === 'undefined' || typeof ingredient.name === 'undefined') {
+                console.warn("Bỏ qua nguyên liệu không hợp lệ từ API:", ingredient);
+                return;
+            }
+            const item = document.createElement('div');
+            item.className = 'ingredient-item';
+            item.dataset.id = ingredient.id;
+
+             if (selectedIngredients.some(selected => selected.id === ingredient.id)) {
+                item.classList.add('selected');
+            }
+
+            item.innerHTML = `
+                <div class="ingredient-icon">
+                    <i class="fas ${ingredient.icon || 'fa-question-circle'}"></i>
+                </div>
+                <div class="ingredient-name">${ingredient.name}</div>
+            `;
+            item.addEventListener('click', () => toggleIngredient(ingredient));
+            grid.appendChild(item);
+        });
+         console.log("Đã tải giao diện nguyên liệu từ dữ liệu API.");
+    }
+
+    /**
+     * Xử lý việc chọn hoặc bỏ chọn một nguyên liệu
+      * (Giữ nguyên logic như trước)
+     */
+    function toggleIngredient(ingredient) {
+        const index = selectedIngredients.findIndex(item => item.id === ingredient.id);
+        const ingredientEl = document.querySelector(`.ingredient-item[data-id="${ingredient.id}"]`);
+
+        if (index > -1) {
+            selectedIngredients.splice(index, 1);
+            if (ingredientEl) ingredientEl.classList.remove('selected');
+            console.log("Đã bỏ chọn:", ingredient.name);
+        } else {
+            // Kiểm tra xem ingredient có đủ thông tin không trước khi push
+             if(ingredient && typeof ingredient.id !== 'undefined' && typeof ingredient.name !== 'undefined') {
+                selectedIngredients.push(ingredient);
+                if (ingredientEl) ingredientEl.classList.add('selected');
+                console.log("Đã chọn:", ingredient.name);
+            } else {
+                 console.error("Không thể chọn nguyên liệu không hợp lệ:", ingredient);
+            }
+        }
+        updateSelectedTags();
+        updateRecipes();
+    }
+
+    /**
+     * Cập nhật khu vực hiển thị các thẻ (tags) của nguyên liệu đã chọn
+      * (Giữ nguyên logic như trước)
+     */
+    function updateSelectedTags() {
+        const container = document.getElementById('selected-ingredients');
+         if (!container) return;
+        container.innerHTML = '';
+
+        selectedIngredients.forEach(ingredient => {
+            const tag = document.createElement('div');
+            tag.className = 'selected-tag';
+            tag.innerHTML = `
+                <i class="fas ${ingredient.icon || 'fa-question-circle'}"></i>
+                ${ingredient.name}
+                <span class="remove-tag" data-id="${ingredient.id}" title="Bỏ chọn">&times;</span>
+            `;
+             tag.querySelector('.remove-tag').addEventListener('click', (e) => {
+                const id = parseInt(e.target.dataset.id);
+                 removeIngredient(id);
+                e.stopPropagation();
+            });
+            container.appendChild(tag);
+        });
+    }
+
+    /**
+     * Xóa một nguyên liệu khỏi danh sách đã chọn bằng ID
+      * (Giữ nguyên logic như trước)
+     */
+    function removeIngredient(id) {
+        const index = selectedIngredients.findIndex(item => item.id === id);
+        if (index > -1) {
+            const removedIngredientName = selectedIngredients[index].name;
+            selectedIngredients.splice(index, 1);
+            const ingredientEl = document.querySelector(`.ingredient-item[data-id="${id}"]`);
+            if (ingredientEl) ingredientEl.classList.remove('selected');
             updateSelectedTags();
             updateRecipes();
+            console.log("Đã xóa khỏi lựa chọn (qua thẻ):", removedIngredientName);
         }
-        
-        // Update selected ingredients tags
-        function updateSelectedTags() {
-            const container = document.getElementById('selected-ingredients');
-            container.innerHTML = '';
-            
-            selectedIngredients.forEach(ingredient => {
-                const tag = document.createElement('div');
-                tag.className = 'selected-tag';
-                tag.innerHTML = `
-                    <i class="fas ${ingredient.icon}"></i>
-                    ${ingredient.name}
-                    <span class="remove-tag" data-id="${ingredient.id}">×</span>
-                `;
-                container.appendChild(tag);
-            });
-            
-            // Add event listeners to remove buttons
-            document.querySelectorAll('.remove-tag').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const id = parseInt(e.target.dataset.id);
-                    removeIngredient(id);
-                    e.stopPropagation();
-                });
-            });
+    }
+
+    /**
+     * Cập nhật danh sách món ăn gợi ý dựa trên các nguyên liệu đã chọn
+      * (Giữ nguyên logic như trước, nhưng dữ liệu recipes giờ đến từ API)
+     */
+    function updateRecipes() {
+        const container = document.getElementById('recipes-container');
+         if (!container) return;
+
+        // Hiển thị thông báo nếu chưa chọn nguyên liệu
+        if (selectedIngredients.length === 0) {
+            container.innerHTML = `
+                <div class="no-recipes">
+                    <i class="fas fa-utensils"></i>
+                    <p>Vui lòng chọn nguyên liệu để xem gợi ý món ăn</p>
+                </div>
+            `;
+            return;
         }
-        
-        // Remove ingredient by ID
-        function removeIngredient(id) {
-            const index = selectedIngredients.findIndex(item => item.id === id);
-            if (index > -1) {
-                selectedIngredients.splice(index, 1);
-                
-                // Update UI
-                const ingredientEl = document.querySelector(`.ingredient-item[data-id="${id}"]`);
-                if (ingredientEl) ingredientEl.classList.remove('selected');
-                
-                updateSelectedTags();
-                updateRecipes();
-            }
-        }
-        
-        // Update recipe suggestions based on selected ingredients
-        function updateRecipes() {
-            const container = document.getElementById('recipes-container');
-            
-            if (selectedIngredients.length === 0) {
-                container.innerHTML = `
-                    <div class="no-recipes">
-                        <i class="fas fa-utensils"></i>
-                        <p>Vui lòng chọn nguyên liệu để xem gợi ý món ăn</p>
-                    </div>
-                `;
-                return;
+
+         // Kiểm tra xem recipes có phải là mảng không (sau khi fetch)
+         if (!Array.isArray(recipes)) {
+             console.error("Dữ liệu recipes không hợp lệ sau khi fetch hoặc bị lỗi.");
+             container.innerHTML = '<p>Lỗi: Không thể hiển thị món ăn do dữ liệu không hợp lệ.</p>';
+             return;
+         }
+
+
+        const selectedIds = selectedIngredients.map(item => item.id);
+        console.log("Đang cập nhật món ăn với ID nguyên liệu đã chọn:", selectedIds);
+
+        const matchedRecipes = recipes.filter(recipe => {
+            if (!recipe.ingredients || !Array.isArray(recipe.ingredients)) {
+                console.warn(`Món ăn '${recipe.name}' (ID: ${recipe.id}) bị bỏ qua do thiếu mảng ingredients.`);
+                return false;
             }
             
-            // Get selected ingredient IDs
-            const selectedIds = selectedIngredients.map(item => item.id);
+            // Check if recipe ingredients are objects with id property or just ids
+            const recipeIngredientIds = recipe.ingredients.map(ing => 
+                typeof ing === 'object' ? ing.id : ing
+            );
             
-            // Filter recipes that contain at least one selected ingredient
-            const matchedRecipes = recipes.filter(recipe => {
-                return recipe.ingredients.some(id => selectedIds.includes(id));
-            });
-            
-            if (matchedRecipes.length === 0) {
-                container.innerHTML = `
-                    <div class="no-recipes">
-                        <i class="fas fa-search"></i>
-                        <p>Không tìm thấy món ăn phù hợp với nguyên liệu đã chọn</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Sort recipes by number of matching ingredients (descending)
-            matchedRecipes.sort((a, b) => {
-                const aMatches = a.ingredients.filter(id => selectedIds.includes(id)).length;
-                const bMatches = b.ingredients.filter(id => selectedIds.includes(id)).length;
+            const hasMatch = recipeIngredientIds.some(ingredientId => 
+                selectedIds.includes(ingredientId)
+            );
+            return hasMatch;
+        });
+         console.log("Số món ăn khớp sau khi lọc:", matchedRecipes.length);
+
+        // Hiển thị kết quả lọc
+        if (matchedRecipes.length === 0) {
+            container.innerHTML = `
+                <div class="no-recipes">
+                    <i class="fas fa-search"></i>
+                    <p>Không tìm thấy món ăn phù hợp với nguyên liệu đã chọn</p>
+                </div>
+            `;
+            return;
+        }
+
+               // Sắp xếp
+               matchedRecipes.sort((a, b) => {
+                const aIngIds = a.ingredients.map(ing => typeof ing === 'object' ? ing.id : ing);
+                const bIngIds = b.ingredients.map(ing => typeof ing === 'object' ? ing.id : ing);
+                const aMatches = aIngIds.reduce((count, id) => count + (selectedIds.includes(id) ? 1 : 0), 0);
+                const bMatches = bIngIds.reduce((count, id) => count + (selectedIds.includes(id) ? 1 : 0), 0);
                 return bMatches - aMatches;
-            });
-            
-            // Render recipes
-            container.innerHTML = '';
-            matchedRecipes.forEach(recipe => {
-                const card = document.createElement('div');
-                card.className = 'recipe-card';
-                
-                // Get ingredient names for this recipe
-                const ingredientNames = recipe.ingredients.map(id => {
-                    const ingredient = ingredients.find(item => item.id === id);
-                    return ingredient ? ingredient.name : '';
-                }).filter(Boolean);
-                
-                // Create ingredient tags, highlighting selected ones
-                const ingredientTags = ingredientNames.map(name => {
-                    const isSelected = selectedIngredients.some(item => item.name === name);
-                    return `<span class="recipe-ingredient ${isSelected ? 'selected' : ''}">${name}</span>`;
-                }).join('');
-                
-                card.innerHTML = `
-                    <img src="${recipe.image}" alt="${recipe.name}" class="recipe-image">
-                    <div class="recipe-content">
-                        <h3 class="recipe-title">${recipe.name}</h3>
-                        <div class="recipe-ingredients">
-                            ${ingredientTags}
-                        </div>
-                        <p class="recipe-description">${recipe.description}</p>
-                    </div>
-                `;
-                
-                container.appendChild(card);
-            });
-        }
-        
-        // Search functionality
-        document.querySelector('.search-box').addEventListener('input', (e) => {
-            const searchText = e.target.value.toLowerCase();
-            
-            document.querySelectorAll('.ingredient-item').forEach(item => {
-                const ingredientName = item.querySelector('.ingredient-name').textContent.toLowerCase();
-                
-                if (ingredientName.includes(searchText)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
+            });    
+            console.log("Recipe structure example:", recipes.length > 0 ? recipes[0] : "No recipes");
+            console.log("Recipe ingredients example:", recipes.length > 0 ? recipes[0].ingredients : "No ingredients");
+
+        // Hiển thị món ăn
+        container.innerHTML = '';
+        matchedRecipes.forEach(recipe => {
+            const card = document.createElement('div');
+            card.className = 'recipe-card';
+
+            const ingredientTags = (recipe.ingredients || []).map(id => {
+                const ingredient = ingredients.find(item => item.id === id); // Tìm trong ds ingredients đã fetch
+                if (ingredient) {
+                    const isSelected = selectedIds.includes(id);
+                    return `<span class="recipe-ingredient ${isSelected ? 'selected' : ''}">${ingredient.name}</span>`;
+                }
+                return '';
+            }).filter(Boolean).join(' ');
+
+            card.innerHTML = `
+            <img src="${recipe.image || 'placeholder.jpg'}" alt="${recipe.name || 'Không tên'}" class="recipe-image" onerror="this.onerror=null;this.src='placeholder.jpg';">
+            <div class="recipe-content">
+                <h3 class="recipe-title">${recipe.name || 'Không tên'}</h3>
+                <div class="recipe-ingredients">
+                    ${ingredientTags || 'N/A'}
+                </div>
+                <p class="recipe-description">${recipe.description || ''}</p>
+                <a href="/recipes/${recipe.id}" class="view-button">
+                    <i class="fas fa-utensils" style="margin-right: 8px;"></i>
+                    Xem chi tiết
+                </a>
+            </div>
+        `;
+            container.appendChild(card);
+        });
+    }
+
+    /**
+     * Xử lý sự kiện nhập liệu vào ô tìm kiếm nguyên liệu
+      * (Giữ nguyên logic như trước)
+     */
+    const searchBox = document.querySelector('.search-box');
+    if (searchBox) {
+        searchBox.addEventListener('input', (e) => {
+            const searchText = e.target.value.toLowerCase().trim();
+            const items = document.querySelectorAll('.ingredient-item');
+
+            items.forEach(item => {
+                const ingredientNameEl = item.querySelector('.ingredient-name');
+                if (ingredientNameEl) {
+                    const ingredientName = ingredientNameEl.textContent.toLowerCase();
+                    item.style.display = ingredientName.includes(searchText) ? 'flex' : 'none';
                 }
             });
         });
-        
-        // Initialize the app
-        loadIngredients();
-        updateRecipes();
-    </script>
+    } else {
+         console.error("Không tìm thấy phần tử .search-box");
+    }
+
+
+    // === KHỞI CHẠY ỨNG DỤNG ===
+    // Gọi fetchData để bắt đầu quá trình lấy dữ liệu TỪ API và khởi tạo giao diện
+    // Các hàm loadIngredients() và updateRecipes() sẽ được gọi bên trong fetchData sau khi API trả về thành công
+    fetchData();
+
+</script>
 </body>
 </html>

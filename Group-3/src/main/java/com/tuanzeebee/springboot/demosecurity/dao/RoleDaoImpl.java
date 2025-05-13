@@ -5,6 +5,9 @@ import com.tuanzeebee.springboot.demosecurity.entity.Role;
 import com.tuanzeebee.springboot.demosecurity.repository.RoleDao;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -33,5 +36,11 @@ public class RoleDaoImpl implements RoleDao {
         }
 
         return theRole;
+    }
+    
+    @Override
+    public List<Role> findAllRoles() {
+        TypedQuery<Role> query = entityManager.createQuery("from Role order by name", Role.class);
+        return query.getResultList();
     }
 }

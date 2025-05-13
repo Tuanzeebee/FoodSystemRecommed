@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: "Sets the standards for entity class design including annotations, ID generation strategies, and relationship configurations for database interaction."
+globs: "**/src/main/java/com/example/entities/*.java"
+alwaysApply: true
+---
+
+rules:
+  - rule: "Must annotate entity classes with @Entity."
+  - rule: "Must annotate entity classes with @Data (from Lombok), unless specified in a prompt otherwise."
+  - rule: "Must annotate entity ID with @Id and @GeneratedValue(strategy=GenerationType.IDENTITY)."
+  - rule: "Must use FetchType.LAZY for relationships, unless specified in a prompt otherwise."
+  - rule: "Annotate entity properties properly according to best practices, e.g., @Size, @NotEmpty, @Email, etc."

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aside User</title>
+    
+    <th:block th:fragment="headerfiles">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            body, html {
+                margin: 0;
+                padding: 0;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+   
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 20px 0;
+                margin-bottom: 30px;
+            }
+            
+            .logo {
+                font-size: 28px;
+                font-weight: bold;
+                color: #e74c3c;
+            }
+            
+            .nav-links {
+                display: flex;
+                gap: 30px;
+                text-decoration: none;
+                color: #333;
+                font-weight: 500;
+                transition: color 0.3s;
+                font-size: 16px;
+                text-decoration: none;
+            }
+            
+            .nav-links a {
+                text-decoration: none;
+                color: #333;
+                font-weight: 500;
+                transition: color 0.3s;
+            }
+            
+            .nav-links a:hover {
+                color: #e74c3c;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+    <!-- Fragment để include -->
+    <div th:fragment="aside" class="header-outer-container">
+        <div class="header-container">
+            <div class="header-inner">
+                <header class="main-header">
+                    <div class="logo">CulinaryDelight</div>
+                    <div class="nav-links">
+                        <a th:href="@{/}">Home</a>
+                        <a th:href="@{/recipes}">Recipes</a>
+                        <a th:href="@{/requirement-food}">Requirement Food</a>
+                        <a th:href="@{/blog}">Blog</a>
+                        <a th:href="@{/relax}">Relax</a>
+                    </div>
+                </header>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin - User Management</title>
+  <link rel="shortcut icon" type="image/png" href="../assets/images/logos/favicon.png" />
+  <link rel="stylesheet" href="../assets/css/styles.min.css" />
+  <style>
+    .btn-add {
+      background-color: #3e8ef7;
+      color: white;
+    }
+    .btn-edit {
+      background-color: #ffc107;
+      color: white;
+    }
+    .btn-delete {
+      background-color: #dc3545;
+      color: white;
+    }
+    .btn-update {
+      background-color: #28a745;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <!--  Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+    <!-- Sidebar Start -->
+    <div th:replace="~{admin/layout/aside :: aside}"></div>
+    <!--  Sidebar End -->
+    <!--  Main wrapper -->
+    <div class="body-wrapper">
+      <div class="container-fluid">
+        <div class="container-fluid">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title fw-semibold mb-4">User Management</h5>
+              <div th:if="${message}" th:class="'alert ' + ${message.type}" role="alert">
+                <span th:text="${message.content}"></span>
+               </div>
+              <!-- Main User List View -->
+              <div id="userListView">
+                <!-- Add User Button -->
+                <button type="button" class="btn btn-add mb-3" onclick="showAddUserForm()">
+                  <i class="ti ti-plus"></i> Add New User
+                </button>
+                
+                <!-- Users Table -->
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr th:each="user, userStat : ${users}">
+                        <td th:text="${userStat.count}"></td>
+                        <td th:text="${user.username}"></td>
+                        <td th:text="${user.firstName + ' ' + user.lastName}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td>
+                          <span th:each="role, iterStat : ${user.roles}" class="badge bg-primary me-1" 
+                                th:text="${role}"></span>
+                        </td>
+                        <td>
+                          <button type="button" class="btn btn-edit btn-sm" 
+                                  th:onclick="'showEditUserForm(' + ${user.id} + ')'">
+                            <i class="ti ti-edit"></i> Edit
+                          </button>
+                          <button type="button" class="btn btn-delete btn-sm" 
+                                  th:onclick="'confirmDelete(' + ${user.id} + ')'">
+                            <i class="ti ti-trash"></i> Delete
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <!-- Add User Form -->
+              <div id="addUserFormView" style="display: none;">
+                <h6 class="fw-semibold mb-3">Add New User</h6>
+                <form id="addUserForm" th:action="@{/admin/users/add}" method="post" th:object="${newUser}">
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Username</label>
+                      <input type="text" class="form-control" name="username" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Password</label>
+                      <input type="password" class="form-control" name="password" required>
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">First Name</label>
+                      <input type="text" class="form-control" name="firstName">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Last Name</label>
+                      <input type="text" class="form-control" name="lastName">
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Roles</label>
+                    <div class="form-check" th:each="role : ${roles}">
+                      <input class="form-check-input" type="checkbox" name="roleIds" th:value="${role.id}">
+                      <label class="form-check-label" th:text="${role.name}"></label>
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <button type="button" class="btn btn-secondary" onclick="hideAddUserForm()">Cancel</button>
+                    <button type="submit" class="btn btn-add">Add User</button>
+                  </div>
+                </form>
+              </div>
+              
+              <!-- Edit User Form -->
+              <div id="editUserFormView" style="display: none;">
+                <h6 class="fw-semibold mb-3">Edit User</h6>
+                <form id="editUserForm" th:action="@{/admin/users/update}" method="post">
+                  <input type="hidden" id="editUserId" name="id">
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Username</label>
+                      <input type="text" class="form-control" id="editUsername" name="username" readonly>
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">First Name</label>
+                      <input type="text" class="form-control" id="editFirstName" name="firstName">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Last Name</label>
+                      <input type="text" class="form-control" id="editLastName" name="lastName">
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="editEmail" name="email">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Bio</label>
+                    <textarea class="form-control" id="editBio" name="bio" rows="3"></textarea>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Avatar URL</label>
+                    <input type="text" class="form-control" id="editAvatar" name="avatar">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Roles</label>
+                    <div id="editRolesContainer">
+                      <!-- Roles will be dynamically populated here -->
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" onclick="hideEditUserForm()">Back</button>
+                    <button type="submit" class="btn btn-update">Update User</button>
+                  </div>
+                </form>
+              </div>
+              
+              <!-- Delete Confirmation Modal -->
+              <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Confirm Delete</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      <p>Are you sure you want to delete this user? This action cannot be undone.</p>
+                    </div>
+                    <div class="modal-footer">
+                      <form id="deleteForm" method="post">
+                        <!-- Add CSRF token -->
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-delete">Delete</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="../assets/libs/jquery/dist/jquery.min.js"></script>
+  <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script th:inline="javascript">
+    // Get all users and roles data from Thymeleaf
+    const users = /*[[${users}]]*/ [];
+    const roles = /*[[${roles}]]*/ [];
+    
+    // Show/hide views
+    function showAddUserForm() {
+      document.getElementById('userListView').style.display = 'none';
+      document.getElementById('addUserFormView').style.display = 'block';
+      document.getElementById('editUserFormView').style.display = 'none';
+    }
+    
+    function hideAddUserForm() {
+      document.getElementById('userListView').style.display = 'block';
+      document.getElementById('addUserFormView').style.display = 'none';
+    }
+    
+    function showEditUserForm(userId) {
+      document.getElementById('userListView').style.display = 'none';
+      document.getElementById('addUserFormView').style.display = 'none';
+      document.getElementById('editUserFormView').style.display = 'block';
+      
+      // Find the user by ID
+      const user = users.find(u => u.id === userId);
+      if (user) {
+        // Populate form fields
+        document.getElementById('editUserId').value = user.id;
+        document.getElementById('editUsername').value = user.username;
+        document.getElementById('editFirstName').value = user.firstName || '';
+        document.getElementById('editLastName').value = user.lastName || '';
+        document.getElementById('editEmail').value = user.email || '';
+        document.getElementById('editBio').value = user.bio || '';
+        document.getElementById('editAvatar').value = user.avatar || '';
+        
+        // Set the form action
+        document.getElementById('editUserForm').action = `/admin/users/update/${userId}`;
+        
+        // Populate roles checkboxes
+        const rolesContainer = document.getElementById('editRolesContainer');
+        rolesContainer.innerHTML = '';
+        
+        roles.forEach(role => {
+          const isChecked = user.roles.includes(role.name);
+          
+          const div = document.createElement('div');
+          div.className = 'form-check';
+          
+          const input = document.createElement('input');
+          input.className = 'form-check-input';
+          input.type = 'checkbox';
+          input.name = 'roleIds';
+          input.value = role.id;
+          input.checked = isChecked;
+          
+          const label = document.createElement('label');
+          label.className = 'form-check-label';
+          label.textContent = role.name;
+          
+          div.appendChild(input);
+          div.appendChild(label);
+          rolesContainer.appendChild(div);
+        });
+      }
+    }
+    
+    function hideEditUserForm() {
+      document.getElementById('userListView').style.display = 'block';
+      document.getElementById('editUserFormView').style.display = 'none';
+    }
+    
+function confirmDelete(userId) {
+  const deleteForm = document.getElementById('deleteForm');
+  deleteForm.action = `/admin/users/delete/${userId}`;
+  
+  const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+  deleteModal.show();
+}
+
+  </script>
+</body>
+</html>
