@@ -41,12 +41,18 @@ public class PostControllerAPI {
     }
     
     @PostMapping("/user/{userId}/recipe/{recipeId}")
-    public ResponseEntity<PostDTO> createPost(@RequestBody Post post, 
-                                              @PathVariable Long userId, 
-                                              @PathVariable Long recipeId) {
-        return new ResponseEntity<>(postService.createPost(post, userId, recipeId), HttpStatus.CREATED);
+    public ResponseEntity<?> createPost(@RequestBody Post post, 
+                                      @PathVariable Long userId, 
+                                      @PathVariable Long recipeId) {
+        try {
+            PostDTO newPost = postService.createPost(post, userId, recipeId);
+            return new ResponseEntity<>(newPost, HttpStatus.CREATED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Không thể tạo bài đăng: " + e.getMessage());
+        }
     }
-    
     @PostMapping("/user/{userId}")
     public ResponseEntity<PostDTO> createPostWithoutRecipe(@RequestBody Post post, 
                                                           @PathVariable Long userId) {

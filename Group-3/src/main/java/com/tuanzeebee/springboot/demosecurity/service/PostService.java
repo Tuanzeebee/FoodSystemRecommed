@@ -50,19 +50,24 @@ public class PostService {
                 .collect(Collectors.toList());
     }
     public PostDTO createPost(Post post, Long userId, Long recipeId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
-        Recipe recipe = null;
-        if (recipeId != null) {
-            recipe = recipeRepository.findById(recipeId)
-                    .orElseThrow(() -> new RuntimeException("Recipe not found"));
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+            
+            Recipe recipe = null;
+            if (recipeId != null) {
+                recipe = recipeRepository.findById(recipeId)
+                        .orElseThrow(() -> new RuntimeException("Recipe not found with ID: " + recipeId));
+            }
+            
+            post.setUser(user);
+            post.setRecipe(recipe);
+            Post savedPost = postRepository.save(post);
+            return convertToDTO(savedPost);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error creating post: " + e.getMessage());
         }
-        
-        post.setUser(user);
-        post.setRecipe(recipe);
-        Post savedPost = postRepository.save(post);
-        return convertToDTO(savedPost);
     }
     public PostDTO updatePost(Long id, Post updatedPost) {
         return postRepository.findById(id)

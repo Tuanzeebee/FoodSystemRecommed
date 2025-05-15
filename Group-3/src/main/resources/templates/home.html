@@ -301,6 +301,42 @@
         .slider-dot.active {
             background-color: #e74c3c;
         }
+        .user-section {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-dropdown {
+            margin-left: 15px;
+            position: relative;
+        }
+        
+        .user-btn {
+            background: none;
+            border: none;
+            current: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            padding: 10px;
+            min-width: 150px;
+            z-index: 1000;
+        }
+        
+        .dropdown-content a {
+            color: #e74c3c;
+            display: block;
+            text-decoration: none;
+            padding: 5px 0;
+        }
     </style>
 </head>
 <body>
@@ -308,28 +344,27 @@
         <header>
             <div class="logo">CulinaryDelight</div>
             <div class="nav-links">
-                <a href="@{/}">Home</a>
+                <a th:href="@{/}">Home</a>
                 <a th:href="@{/recipes}">Recipes</a>
                 <a th:href="@{/requirement-food}">Requirement Food</a>
-                <a th:href="@{/blog}">Blog</a>
+                <a th:href="@{/feedback}">Feedback</a>
                 <a th:href="@{/relax}">Relax</a>
             </div>
-            <div class="search-bar">
-                <input type="text" placeholder="Search recipes...">
-                <button>Search</button>
+            <div class="user-section">
+                <div class="user-dropdown">
+                    <button class="user-btn">
+                        <span sec:authentication="principal.username"></span>
+                        <i class="fas fa-caret-down" style="margin-left: 5px;"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="javascript:void(0)" onclick="document.getElementById('logoutForm').submit();">Logout</a>
+                        <form id="logoutForm" th:action="@{/logout}" method="post" style="display:none">
+                            <!-- CSRF token sẽ tự động được Thymeleaf thêm vào -->
+                        </form>
+                    </div>
+                </div>
             </div>
         </header>
-
-        <p>
-            User: <span sec:authentication="principal.username"></span>
-            <br><br>
-            Role(s): <span sec:authentication="principal.authorities"></span>
-        </p>
-<!-- Add a logout button -->
-<form action="#" th:action="@{/logout}"
-method="POST">
-
-<input type="submit" value="Logout" class="btn btn-outline-primary mt-2" />
 
 </form>
         <section class="hero-section">
@@ -365,69 +400,15 @@ method="POST">
                 <div class="slider-dot"></div>
             </div>
         </section>
-        
+
         <section>
             <div class="section-heading">
                 <h2>Popular Recipes</h2>
                 <p>Discover our most loved recipes, tried and tested by thousands of food enthusiasts</p>
             </div>
             
-            <div class="food-grid">
-                <div class="food-card">
-                    <div class="food-image">
-                        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd" alt="Vegetable Bowl">
-                    </div>
-                    <div class="food-info">
-                        <h3>Healthy Vegetable Bowl</h3>
-                        <p>A nutritious mix of roasted and fresh vegetables with quinoa and a tangy dressing. Perfect for a light lunch or dinner.</p>
-                        <div class="food-meta">
-                            <div class="rating">★★★★★ (123)</div>
-                            <div class="time">20 min</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="food-card">
-                    <div class="food-image">
-                        <img src="https://images.unsplash.com/photo-1484723091739-30a097e8f929" alt="Pancakes">
-                    </div>
-                    <div class="food-info">
-                        <h3>Fluffy Pancakes</h3>
-                        <p>Start your day right with these incredibly fluffy pancakes topped with fresh berries and maple syrup.</p>
-                        <div class="food-meta">
-                            <div class="rating">★★★★☆ (98)</div>
-                            <div class="time">15 min</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="food-card">
-                    <div class="food-image">
-                        <img src="https://images.unsplash.com/photo-1551183053-bf91a1d81141" alt="Pasta">
-                    </div>
-                    <div class="food-info">
-                        <h3>Creamy Mushroom Pasta</h3>
-                        <p>A rich and creamy pasta dish loaded with sautéed mushrooms, garlic, and herbs. A comforting dinner option.</p>
-                        <div class="food-meta">
-                            <div class="rating">★★★★★ (145)</div>
-                            <div class="time">25 min</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="food-card">
-                    <div class="food-image">
-                        <img src="https://images.unsplash.com/photo-1528207776546-365bb710ee93" alt="Smoothie Bowl">
-                    </div>
-                    <div class="food-info">
-                        <h3>Berry Smoothie Bowl</h3>
-                        <p>Thick smoothie bowl packed with antioxidant-rich berries and topped with granola, coconut, and fresh fruit.</p>
-                        <div class="food-meta">
-                            <div class="rating">★★★★☆ (87)</div>
-                            <div class="time">10 min</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="food-grid" id="popularRecipes">
+                <!-- Dữ liệu sẽ được thêm vào đây bằng JavaScript -->
             </div>
         </section>
         
@@ -437,62 +418,8 @@ method="POST">
                 <p>The best recipes to make the most of this season's fresh ingredients</p>
             </div>
             
-            <div class="food-grid">
-                <div class="food-card">
-                    <div class="food-image">
-                        <img src="https://images.unsplash.com/photo-1547592180-85f173990554" alt="Grilled Chicken">
-                    </div>
-                    <div class="food-info">
-                        <h3>Herb Grilled Chicken</h3>
-                        <p>Juicy grilled chicken marinated with fresh herbs and lemon. Perfect for summer barbecues with friends and family.</p>
-                        <div class="food-meta">
-                            <div class="rating">★★★★★ (156)</div>
-                            <div class="time">35 min</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="food-card">
-                    <div class="food-image">
-                        <img src="https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6" alt="Tomato Soup">
-                    </div>
-                    <div class="food-info">
-                        <h3>Roasted Tomato Soup</h3>
-                        <p>Flavorful soup made with oven-roasted tomatoes, garlic, and fresh basil. Served with crusty bread for dipping.</p>
-                        <div class="food-meta">
-                            <div class="rating">★★★★☆ (112)</div>
-                            <div class="time">40 min</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="food-card">
-                    <div class="food-image">
-                        <img src="https://images.unsplash.com/photo-1464500522458-1a29e7605a8d" alt="Fruit Salad">
-                    </div>
-                    <div class="food-info">
-                        <h3>Tropical Fruit Salad</h3>
-                        <p>A refreshing mix of tropical fruits with a lime-mint dressing. Perfect for breakfast or as a light dessert.</p>
-                        <div class="food-meta">
-                            <div class="rating">★★★★★ (78)</div>
-                            <div class="time">15 min</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="food-card">
-                    <div class="food-image">
-                        <img src="https://images.unsplash.com/photo-1546039907-7fa05f864c02" alt="Roasted Vegetables">
-                    </div>
-                    <div class="food-info">
-                        <h3>Honey Roasted Vegetables</h3>
-                        <p>Seasonal vegetables roasted to perfection with honey, herbs, and a hint of chili. A great side dish for any meal.</p>
-                        <div class="food-meta">
-                            <div class="rating">★★★★☆ (93)</div>
-                            <div class="time">30 min</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="food-grid" id="seasonalRecipes">
+                <!-- Dữ liệu sẽ được thêm vào đây bằng JavaScript -->
             </div>
         </section>
     </div>
@@ -547,32 +474,99 @@ method="POST">
     </footer>
     
     <script>
-        // Simple slider functionality
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide');
-        const dots = document.querySelectorAll('.slider-dot');
+
+                    // Xử lý dropdown
+                    document.querySelector('.user-btn').addEventListener('click', function() {
+                        const dropdownContent = document.querySelector('.dropdown-content');
+                        if (dropdownContent.style.display === 'none' || !dropdownContent.style.display) {
+                            dropdownContent.style.display = 'block';
+                        } else {
+                            dropdownContent.style.display = 'none';
+                        }
+                    });
+                    
+                    // Đóng dropdown khi click ra ngoài
+                    window.addEventListener('click', function(e) {
+                        if (!e.target.matches('.user-btn') && !e.target.closest('.user-btn')) {
+                            document.querySelector('.dropdown-content').style.display = 'none';
+                        }
+                    });
+    // Simple slider functionality
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.slider-dot');
+    
+    function showSlide(index) {
+        slides.forEach(slide => slide.classList.remove('active'));
+        dots.forEach(dot => dot.classList.remove('active'));
         
-        function showSlide(index) {
-            slides.forEach(slide => slide.classList.remove('active'));
-            dots.forEach(dot => dot.classList.remove('active'));
-            
-            slides[index].classList.add('active');
-            dots[index].classList.add('active');
-            currentSlide = index;
-        }
-        
-        // Add click event to dots
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                showSlide(index);
-            });
+        slides[index].classList.add('active');
+        dots[index].classList.add('active');
+        currentSlide = index;
+    }
+    
+    // Add click event to dots
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            showSlide(index);
         });
-        
-        // Auto slide
-        setInterval(() => {
-            let nextSlide = (currentSlide + 1) % slides.length;
-            showSlide(nextSlide);
-        }, 5000);
+    });
+    
+    // Auto slide
+    setInterval(() => {
+        let nextSlide = (currentSlide + 1) % slides.length;
+        showSlide(nextSlide);
+    }, 5000);
+    
+    // Fetch recipes from API
+    fetch('/api/recipes')
+        .then(response => response.json())
+        .then(recipes => {
+            // Lấy 4 công thức đầu tiên cho Popular Recipes
+            const popularRecipesData = recipes.slice(0, 4);
+            const popularRecipesContainer = document.getElementById('popularRecipes');
+            
+            popularRecipesData.forEach(recipe => {
+                popularRecipesContainer.innerHTML += createRecipeCard(recipe);
+            });
+            
+            // Lấy 4 công thức tiếp theo cho Seasonal Favorites
+            const seasonalRecipesData = recipes.slice(4, 8);
+            const seasonalRecipesContainer = document.getElementById('seasonalRecipes');
+            
+            seasonalRecipesData.forEach(recipe => {
+                seasonalRecipesContainer.innerHTML += createRecipeCard(recipe);
+            });
+        })
+        .catch(error => console.error('Error fetching recipes:', error));
+    
+    // Tạo card cho mỗi công thức
+    function createRecipeCard(recipe) {
+        // Cắt ngắn mô tả còn 60 ký tự
+        const shortDesc = recipe.description 
+            ? (recipe.description.length > 120 
+                ? recipe.description.substring(0, 120) + '...' 
+                : recipe.description)
+            : 'Delicious recipe';
+            
+        return `
+            <div class="food-card">
+                <div class="food-image">
+                    <a href="/recipe/view/${recipe.id}">
+                        <img src="${recipe.image || 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd'}" alt="${recipe.name}">
+                    </a>
+                </div>
+                <div class="food-info">
+                    <h3>${recipe.name}</h3>
+                    <p>${shortDesc}</p>
+                    <div class="food-meta">
+                        <div class="rating">★★★★★ (0)</div>
+                        <div class="time">20 min</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
     </script>
 </body>
 </html>

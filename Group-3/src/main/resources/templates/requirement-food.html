@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Suggestion App</title>
+    <th:block th:insert="~{/asideuser :: headerfiles}"></th:block>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -290,8 +291,8 @@
     </style>
 </head>
 <body>
-    <div th:replace="~{/asideuser :: aside}"></div>
     <div class="main-content">
+        <div th:replace="~{/asideuser :: aside}"></div>
         <div class="container">
             <div class="ingredients-panel">
                 <h2>Chọn Nguyên Liệu</h2>
