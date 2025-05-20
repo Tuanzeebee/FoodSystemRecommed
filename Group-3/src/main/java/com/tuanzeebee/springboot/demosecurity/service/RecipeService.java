@@ -95,6 +95,19 @@ public class RecipeService {
         return convertToDTO(updatedRecipe);
     }
     public void deleteRecipe(Long id) {
+        Recipe recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy công thức với ID: " + id));
+        
+        // Xóa các quan hệ
+        recipe.getSteps().clear();
+        recipe.getIngredients().clear();
+        recipe.getPosts().clear();
+        recipe.getSavedByUsers().clear();
+        
+        // Lưu lại để cập nhật các quan hệ
+        recipeRepository.save(recipe);
+        
+        // Sau đó mới xóa recipe
         recipeRepository.deleteById(id);
     }
     public List<RecipeDTO> getRecipesByIngredientId(Long ingredientId) {
@@ -132,4 +145,7 @@ public class RecipeService {
         return dto;
     }
     
+    public long countRecipes() {
+        return recipeRepository.count();
+    }
 }

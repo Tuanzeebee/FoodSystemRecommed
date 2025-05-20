@@ -112,33 +112,66 @@
             align-items: center;
             justify-content: center;
             background-color: #f8f9fa;
-            border-radius: 10px;
+            border-radius: 15px;
             padding: 15px 10px;
-            current: pointer;
+            cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
             border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
         }
         
         .ingredient-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
         }
         
         .ingredient-item.selected {
             background-color: #e8f5e9;
             border-color: #4caf50;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+        }
+
+        .ingredient-item.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #4caf50;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            animation: fadeIn 0.3s ease;
         }
         
         .ingredient-icon {
-            font-size: 24px;
-            margin-bottom: 8px;
+            font-size: 28px;
+            margin-bottom: 10px;
             color: #555;
+            transition: all 0.3s ease;
+        }
+
+        .ingredient-item:hover .ingredient-icon {
+            transform: scale(1.1);
+            color: #e74c3c;
         }
         
         .ingredient-name {
             font-size: 14px;
             font-weight: 500;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .ingredient-item:hover .ingredient-name {
+            color: #e74c3c;
         }
         
         .recipe-card {
@@ -205,23 +238,58 @@
         .selected-ingredients {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            min-height: 60px;
         }
         
         .selected-tag {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border-radius: 20px;
-            padding: 5px 12px;
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            border-radius: 25px;
+            padding: 8px 15px;
             font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease;
+        }
+
+        .selected-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
         
         .remove-tag {
-            current: pointer;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .remove-tag:hover {
+            background-color: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .no-recipes {
@@ -330,10 +398,8 @@
      * Cần phải có backend server chạy và cung cấp dữ liệu tại các đường dẫn này.
      */
     async function fetchData() {
-        console.log("Bắt đầu lấy dữ liệu từ API backend...");
         try {
             // Lấy danh sách nguyên liệu
-            console.log("Đang gọi /api/ingredients...");
             const ingRes = await fetch('/api/ingredients'); // <<< GỌI API NGUYÊN LIỆU
             if (!ingRes.ok) {
                 // Ném lỗi nếu request không thành công (vd: 404, 500)
@@ -341,7 +407,6 @@
             }
             // Chuyển đổi response thành JSON và gán vào biến ingredients
             ingredients = await ingRes.json();
-            console.log("Lấy nguyên liệu từ API thành công:", ingredients);
             // Kiểm tra định dạng cơ bản
              if (!Array.isArray(ingredients)) {
                  console.warn("Dữ liệu trả về từ /api/ingredients không phải là một mảng!");
@@ -350,14 +415,12 @@
 
 
             // Lấy danh sách món ăn
-            console.log("Đang gọi /api/recipes...");
             const recRes = await fetch('/api/recipes');    // <<< GỌI API MÓN ĂN
             if (!recRes.ok) {
                 throw new Error(`HTTP error! status: ${recRes.status} khi gọi /api/recipes`);
             }
              // Chuyển đổi response thành JSON và gán vào biến recipes
             recipes = await recRes.json();
-            console.log("Lấy món ăn từ API thành công:", recipes);
             // Kiểm tra định dạng cơ bản và cấu trúc 'ingredients' bên trong recipes
             if (!Array.isArray(recipes)) {
                 console.warn("Dữ liệu trả về từ /api/recipes không phải là một mảng!");
@@ -372,10 +435,8 @@
             }
 
             // === KHỞI TẠO GIAO DIỆN SAU KHI LẤY DỮ LIỆU THÀNH CÔNG ===
-            console.log("Khởi tạo giao diện với dữ liệu từ API...");
             loadIngredients(); // Hiển thị lưới nguyên liệu
             updateRecipes();   // Cập nhật hiển thị món ăn (ban đầu sẽ là "chọn nguyên liệu")
-            console.log("Khởi tạo giao diện hoàn tất.");
 
         } catch (error) {
             console.error("Lỗi nghiêm trọng khi lấy dữ liệu từ API:", error);
@@ -433,7 +494,6 @@
             item.addEventListener('click', () => toggleIngredient(ingredient));
             grid.appendChild(item);
         });
-         console.log("Đã tải giao diện nguyên liệu từ dữ liệu API.");
     }
 
     /**
@@ -447,13 +507,11 @@
         if (index > -1) {
             selectedIngredients.splice(index, 1);
             if (ingredientEl) ingredientEl.classList.remove('selected');
-            console.log("Đã bỏ chọn:", ingredient.name);
         } else {
             // Kiểm tra xem ingredient có đủ thông tin không trước khi push
              if(ingredient && typeof ingredient.id !== 'undefined' && typeof ingredient.name !== 'undefined') {
                 selectedIngredients.push(ingredient);
                 if (ingredientEl) ingredientEl.classList.add('selected');
-                console.log("Đã chọn:", ingredient.name);
             } else {
                  console.error("Không thể chọn nguyên liệu không hợp lệ:", ingredient);
             }
@@ -533,7 +591,6 @@
 
 
         const selectedIds = selectedIngredients.map(item => item.id);
-        console.log("Đang cập nhật món ăn với ID nguyên liệu đã chọn:", selectedIds);
 
         const matchedRecipes = recipes.filter(recipe => {
             if (!recipe.ingredients || !Array.isArray(recipe.ingredients)) {
@@ -551,7 +608,6 @@
             );
             return hasMatch;
         });
-         console.log("Số món ăn khớp sau khi lọc:", matchedRecipes.length);
 
         // Hiển thị kết quả lọc
         if (matchedRecipes.length === 0) {
@@ -572,9 +628,6 @@
                 const bMatches = bIngIds.reduce((count, id) => count + (selectedIds.includes(id) ? 1 : 0), 0);
                 return bMatches - aMatches;
             });    
-            console.log("Recipe structure example:", recipes.length > 0 ? recipes[0] : "No recipes");
-            console.log("Recipe ingredients example:", recipes.length > 0 ? recipes[0].ingredients : "No ingredients");
-
         // Hiển thị món ăn
         container.innerHTML = '';
         matchedRecipes.forEach(recipe => {

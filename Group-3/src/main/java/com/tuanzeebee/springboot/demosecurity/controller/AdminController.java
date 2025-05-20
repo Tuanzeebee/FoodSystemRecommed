@@ -30,6 +30,7 @@ import com.tuanzeebee.springboot.demosecurity.repository.RoleRepository;
 import com.tuanzeebee.springboot.demosecurity.service.IngredientService;
 import com.tuanzeebee.springboot.demosecurity.service.RecipeService;
 import com.tuanzeebee.springboot.demosecurity.service.UserService;
+import com.tuanzeebee.springboot.demosecurity.service.PostService;
 
 @Controller
 @RequestMapping("/admin")
@@ -39,20 +40,35 @@ public class AdminController {
     private final RoleRepository roleRepository;
     private final IngredientService ingredientService;
     private final RecipeService recipeService;
+    private final PostService postService;
     
     @Autowired
     public AdminController(UserService userService, 
                           RoleRepository roleRepository, 
                           IngredientService ingredientService,
-                          RecipeService recipeService) {
+                          RecipeService recipeService,
+                          PostService postService) {
         this.userService = userService;
         this.roleRepository = roleRepository;
         this.ingredientService = ingredientService;
         this.recipeService = recipeService;
+        this.postService = postService;
     }
     
     @GetMapping({"", "/", "/dashboard"})
-    public String dashboard() {
+    public String dashboard(Model model) {
+        // Tổng số lượng
+        long totalUsers = userService.countUsers();
+        long totalRecipes = recipeService.countRecipes();
+        long totalIngredients = ingredientService.countIngredients();
+        long totalComments = postService.countPosts();
+
+        // Thêm dữ liệu vào model
+        model.addAttribute("totalUsers", totalUsers);
+        model.addAttribute("totalRecipes", totalRecipes);
+        model.addAttribute("totalIngredients", totalIngredients);
+        model.addAttribute("totalComments", totalComments);
+
         return "admin/dashboard";
     }
 
@@ -262,8 +278,9 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("message", 
                 Map.of("type", "alert-success", "content", "Xóa công thức thành công!"));
         } catch (RuntimeException e) {
+            String errorMessage = e.getMessage() != null ? e.getMessage() : "Có lỗi xảy ra khi xóa công thức";
             redirectAttributes.addFlashAttribute("message", 
-                Map.of("type", "alert-danger", "content", e.getMessage()));
+                Map.of("type", "alert-danger", "content", errorMessage));
         }
         return "redirect:/admin/recipes";
     }
@@ -276,12 +293,16 @@ public class AdminController {
             Files.createDirectories(uploadPath);
         }
         
-        // Lưu file với tên duy nhất
-        String fileName = java.util.UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        // Tạo tên file duy nhất với timestamp
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        String fileName = System.currentTimeMillis() + "_" + java.util.UUID.randomUUID().toString() + fileExtension;
+        
+        // Lưu file
         Path filePath = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), filePath);
         
-        // Trả về đường dẫn tương đối để lưu vào database
+        // Trả về URL đầy đủ để hiển thị
         return "/uploads/recipes/" + fileName;
     }
 }

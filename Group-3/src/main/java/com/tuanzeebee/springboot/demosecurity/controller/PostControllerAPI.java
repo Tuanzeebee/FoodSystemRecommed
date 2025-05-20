@@ -36,8 +36,15 @@ public class PostControllerAPI {
     }
     
     @GetMapping("/recipe/{recipeId}")
-    public ResponseEntity<List<PostDTO>> getPostsByRecipeId(@PathVariable Long recipeId) {
-        return ResponseEntity.ok(postService.getPostsByRecipeId(recipeId));
+    public ResponseEntity<?> getPostsByRecipeId(@PathVariable Long recipeId) {
+        try {
+            List<PostDTO> posts = postService.getPostsByRecipeId(recipeId);
+            return ResponseEntity.ok(posts);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Lỗi server khi lấy danh sách bài đăng: " + e.getMessage()));
+        }
     }
     
     @PostMapping("/user/{userId}/recipe/{recipeId}")
@@ -71,12 +78,48 @@ public class PostControllerAPI {
     }
     
     @PostMapping("/{postId}/like/{userId}")
-    public ResponseEntity<PostDTO> likePost(@PathVariable Long postId, @PathVariable Long userId) {
-        return ResponseEntity.ok(postService.likePost(postId, userId));
+    public ResponseEntity<?> likePost(@PathVariable Long postId, @PathVariable Long userId) {
+        try {
+            PostDTO post = postService.likePost(postId, userId);
+            return ResponseEntity.ok(post);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Lỗi server khi thích bài đăng: " + e.getMessage()));
+        }
     }
     
     @DeleteMapping("/{postId}/unlike/{userId}")
-    public ResponseEntity<PostDTO> unlikePost(@PathVariable Long postId, @PathVariable Long userId) {
-        return ResponseEntity.ok(postService.unlikePost(postId, userId));
+    public ResponseEntity<?> unlikePost(@PathVariable Long postId, @PathVariable Long userId) {
+        try {
+            PostDTO post = postService.unlikePost(postId, userId);
+            return ResponseEntity.ok(post);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Lỗi server khi bỏ thích bài đăng: " + e.getMessage()));
+        }
+    }
+
+    private static class ErrorResponse {
+        private String message;
+
+        public ErrorResponse(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
     }
 }

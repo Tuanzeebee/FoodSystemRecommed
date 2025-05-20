@@ -52,7 +52,10 @@ public class DemoSecurityConfig {
                                 .requestMatchers("/blog","/").permitAll()
                                 .requestMatchers("/relax","/").permitAll()
                                 .requestMatchers("/relax/**").permitAll()
-                                
+                                .requestMatchers("/api/recipes/**").permitAll()
+                                .requestMatchers("/api/ingredients/**").permitAll()
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/api/manager/**").hasRole("MANAGER")
                                 .anyRequest().authenticated()
                 )
                 .formLogin(form ->
@@ -70,7 +73,10 @@ public class DemoSecurityConfig {
             )
             .exceptionHandling(configurer ->
                 configurer
-                    .accessDeniedPage("/access-denied")
+                    .accessDeniedPage("/error/access-denied")
+            )
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/**")
             );
             
         return http.build();

@@ -9,29 +9,35 @@ import com.tuanzeebee.springboot.demosecurity.entity.User;
 import com.tuanzeebee.springboot.demosecurity.repository.RoleRepository;
 import com.tuanzeebee.springboot.demosecurity.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+
     @Autowired
     public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
     public UserDTO getUserById(Long id) {
         return userRepository.findById(id)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
     public UserDTO createUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Username already exists");
@@ -43,6 +49,7 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return convertToDTO(savedUser);
     }
+
     public UserDTO updateUser(Long id, User updatedUser) {
         return userRepository.findById(id)
                 .map(user -> {
@@ -57,14 +64,17 @@ public class UserService {
                 })
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
     // Thêm phương thức này vào UserService
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
-    }    
+    }
+
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
     public UserDTO followUser(Long followerId, Long followedId) {
         User follower = userRepository.findById(followerId)
                 .orElseThrow(() -> new RuntimeException("Follower not found"));
@@ -74,6 +84,7 @@ public class UserService {
         userRepository.save(follower);
         return convertToDTO(follower);
     }
+
     public UserDTO unfollowUser(Long followerId, Long followedId) {
         User follower = userRepository.findById(followerId)
                 .orElseThrow(() -> new RuntimeException("Follower not found"));
@@ -83,6 +94,7 @@ public class UserService {
         userRepository.save(follower);
         return convertToDTO(follower);
     }
+
     private UserDTO convertToDTO(User user) {
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
@@ -95,5 +107,14 @@ public class UserService {
         dto.setRoles(user.getRoles().stream().map(role -> role.getName()).collect(Collectors.toSet()));
         return dto;
     }
-    
+
+    public UserDTO findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(this::convertToDTO)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+    }
+
+    public long countUsers() {
+        return userRepository.count();
+    }
 }

@@ -7,25 +7,31 @@ import com.tuanzeebee.springboot.demosecurity.dao.IngredientDTO;
 import com.tuanzeebee.springboot.demosecurity.entity.Ingredient;
 import com.tuanzeebee.springboot.demosecurity.repository.IngredientRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Service
 public class IngredientService {
     private final IngredientRepository ingredientRepository;
+
     @Autowired
     public IngredientService(IngredientRepository ingredientRepository) {
         this.ingredientRepository = ingredientRepository;
     }
+
     public List<IngredientDTO> getAllIngredients() {
         return ingredientRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
     public IngredientDTO getIngredientById(Long id) {
         return ingredientRepository.findById(id)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new RuntimeException("Ingredient not found"));
     }
+
     public IngredientDTO createIngredient(Ingredient ingredient) {
         if (ingredientRepository.existsByName(ingredient.getName())) {
             throw new RuntimeException("Ingredient with this name already exists");
@@ -33,6 +39,7 @@ public class IngredientService {
         Ingredient savedIngredient = ingredientRepository.save(ingredient);
         return convertToDTO(savedIngredient);
     }
+
     public IngredientDTO updateIngredient(Long id, Ingredient updatedIngredient) {
         return ingredientRepository.findById(id)
                 .map(ingredient -> {
@@ -42,9 +49,15 @@ public class IngredientService {
                 })
                 .orElseThrow(() -> new RuntimeException("Ingredient not found"));
     }
+
     public void deleteIngredient(Long id) {
         ingredientRepository.deleteById(id);
     }
+
+    public long countIngredients() {
+        return ingredientRepository.count();
+    }
+
     private IngredientDTO convertToDTO(Ingredient ingredient) {
         IngredientDTO dto = new IngredientDTO();
         dto.setId(ingredient.getId());
@@ -52,5 +65,4 @@ public class IngredientService {
         dto.setIcon(ingredient.getIcon());
         return dto;
     }
-
 }

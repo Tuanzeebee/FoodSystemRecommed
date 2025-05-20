@@ -65,22 +65,16 @@ public class UserController {
     }
     
     @GetMapping("/current")
-    public ResponseEntity<?> getCurrentUser() {
+    public ResponseEntity<UserDTO> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || 
-            "anonymousUser".equals(authentication.getPrincipal())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
         
-        try {
-            String username = authentication.getName();
-            User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
-            
-            return ResponseEntity.ok(userService.getUserById(user.getId()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error getting current user: " + e.getMessage());
-        }
+        return ResponseEntity.ok(userService.getUserById(user.getId()));
     }
 }

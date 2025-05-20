@@ -30,10 +30,10 @@
           
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title fw-semibold mb-4">Quản lý công thức</h5>
+              <h5 class="card-title fw-semibold mb-4">Management Recipe</h5>
               <div class="d-flex justify-content-end mb-3">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
-                  <i class="ti ti-plus"></i> Thêm công thức mới
+                  <i class="ti ti-plus"></i> Add New Recipe
                 </button>
               </div>
               
@@ -67,7 +67,7 @@
                         <div th:unless="${recipe.image}" class="bg-light rounded" style="width:50px;height:50px;"></div>
                       </td>
                       <td class="border-bottom-0"><p class="mb-0 fw-normal" th:text="${recipe.name}"></p></td>
-                      <td class="border-bottom-0"><p class="mb-0 fw-normal" th:text="${#strings.abbreviate(recipe.description,100)}"></p></td>
+                      <td class="border-bottom-0"><p class="mb-0 fw-normal" th:text="${#strings.abbreviate(recipe.description,50)}"></p></td>
                       <td class="border-bottom-0">
                         <button type="button" class="btn btn-info btn-sm" 
                           th:data-id="${recipe.id}"
@@ -193,11 +193,11 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="deleteRecipeModalLabel">Xác nhận xóa</h5>
+          <h5 class="modal-title" id="deleteRecipeModalLabel">Accept Delete</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p>Bạn có chắc chắn muốn xóa công thức "<span id="deleteRecipeName"></span>"?</p>
+          <p>Are you sure you want to delete the recipe "<span id="deleteRecipeName"></span>"?</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>

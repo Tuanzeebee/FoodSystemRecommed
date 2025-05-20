@@ -1,106 +1,36 @@
-
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đánh giá & Góp ý công thức nấu ăn</title>
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Feedback Công Thức Nấu Ăn</title>
+    <th:block th:insert="~{/asideuser :: headerfiles}"></th:block>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #ff6b6b;
-            --primary-dark: #e85555;
-            --secondary-color: #ff8e72;
-            --accent-color: #4ecdc4;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #2c3e50;
-            --text-muted: #6c757d;
-            --border-color: #e9ecef;
-            --success-color: #28a745;
-            --shadow: 0 2px 10px rgba(0,0,0,0.1);
-            --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
-            --border-radius: 12px;
-            --border-radius-sm: 8px;
+            --secondary-color: #4ecdc4;
+            --background-color: #f7f7f7;
+            --text-color: #333;
+            --light-gray: #e0e0e0;
         }
         
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-color);
+            background-color: var(--background-color);
             color: var(--text-color);
             line-height: 1.6;
         }
-        
-        /* Header Styles */
-        header {
-            background-color: var(--card-bg);
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--primary-color);
-            font-size: 24px;
-            font-weight: 700;
-            text-decoration: none;
-        }
-        
-        .search-bar {
-            flex-grow: 1;
-            max-width: 500px;
-            margin: 0 20px;
-            position: relative;
-        }
-        
-        .search-bar input {
-            width: 100%;
-            padding: 12px 16px 12px 48px;
-            border-radius: 25px;
-            border: 2px solid var(--border-color);
-            background-color: var(--bg-color);
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-        
-        .search-bar input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-        
-        .search-bar i {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-        
         .nav-links {
             display: flex;
-            gap: 4px;
+            gap: 20px;
+            margin: 0 30px;
         }
         
         .nav-link {
@@ -125,838 +55,1276 @@
             color: white;
         }
         
-        /* Main Container */
-        .main-container {
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 3rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
             max-width: 800px;
             margin: 0 auto;
-            padding: 24px 20px;
         }
         
-        /* Create Post Section */
-        .create-post {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            padding: 24px;
-            margin-bottom: 24px;
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
         }
         
-        .create-post h2 {
-            color: var(--text-color);
-            margin-bottom: 20px;
-            font-size: 22px;
-            font-weight: 600;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text-color);
-        }
-        
-        select, textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--border-color);
-            border-radius: var(--border-radius-sm);
-            font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.3s ease;
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
             background-color: white;
+            font-size: 1rem;
+            border-radius: 5px;
+            margin: 0 5px;
+            transition: all 0.3s ease;
         }
         
-        select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-        
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        button[type="submit"] {
+        .tab.active {
             background-color: var(--primary-color);
             color: white;
+        }
+        
+        .tab:hover {
+            background-color: var(--light-gray);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .recipes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .recipe-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .recipe-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .recipe-image {
+            height: 200px;
+            width: 100%;
+            object-fit: cover;
+        }
+        
+        .recipe-content {
+            padding: 15px;
+        }
+        
+        .recipe-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .recipe-description {
+            color: #666;
+            margin-bottom: 15px;
+            height: 60px;
+            overflow: hidden;
+        }
+        
+        .recipe-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--light-gray);
+            padding-top: 15px;
+        }
+        
+        .recipe-btn {
+            padding: 8px 15px;
             border: none;
-            padding: 12px 24px;
-            border-radius: var(--border-radius-sm);
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 5px;
             cursor: pointer;
+            font-weight: bold;
             transition: background-color 0.3s ease;
         }
         
-        button[type="submit"]:hover {
-            background-color: var(--primary-dark);
-        }
-        
-        /* Posts Container */
-        .posts-container {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            padding: 24px;
-        }
-        
-        .posts-container h2 {
-            color: var(--text-color);
-            margin-bottom: 20px;
-            font-size: 22px;
-            font-weight: 600;
-        }
-        
-        /* Filter Options */
-        .filter-options {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        
-        .filter-btn {
-            padding: 8px 20px;
-            border: 2px solid var(--border-color);
-            background-color: white;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        
-        .filter-btn:hover, .filter-btn.active {
-            background-color: var(--primary-color);
+        .view-btn {
+            background-color: var(--secondary-color);
             color: white;
-            border-color: var(--primary-color);
         }
         
-        /* Post Items */
-        .post-item {
-            background-color: white;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            margin-bottom: 16px;
-            transition: box-shadow 0.3s ease;
+        .view-btn:hover {
+            background-color: #3dbeb6;
         }
         
-        .post-item:hover {
-            box-shadow: var(--shadow-hover);
-        }
-        
-        .post-header {
+        .interaction {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-        
-        .user-info {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .username {
-            font-weight: 600;
-            color: var(--text-color);
-        }
-        
-        .post-date {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-        
-        .post-recipe {
-            background-color: var(--bg-color);
-            padding: 16px;
-            border-radius: var(--border-radius-sm);
-            margin-bottom: 12px;
-        }
-        
-        .post-recipe h3 {
-            color: var(--text-color);
-            margin-bottom: 8px;
-            font-size: 18px;
-        }
-        
-        .view-recipe-btn {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        .view-recipe-btn:hover {
-            text-decoration: underline;
-        }
-        
-        .post-content {
-            color: var(--text-color);
-            margin-bottom: 16px;
-            line-height: 1.7;
-        }
-        
-        .post-actions {
-            display: flex;
-            gap: 16px;
+            gap: 15px;
         }
         
         .like-btn, .comment-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
             background: none;
             border: none;
             cursor: pointer;
-            padding: 8px 12px;
-            border-radius: var(--border-radius-sm);
-            transition: background-color 0.3s ease;
-            color: var(--text-muted);
+            font-size: 1rem;
+            color: #666;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         .like-btn:hover, .comment-btn:hover {
-            background-color: var(--bg-color);
             color: var(--primary-color);
         }
         
-        /* Comments Section */
-        .comments-container {
-            margin-top: 16px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 16px;
+        .liked {
+            color: var(--primary-color);
         }
         
-        .comments-list {
-            margin-bottom: 16px;
+        .feedback-form {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
         }
         
-        .comment-item {
-            background-color: var(--bg-color);
-            padding: 12px;
-            border-radius: var(--border-radius-sm);
-            margin-bottom: 8px;
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            background-color: #ff5252;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 1200px;
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            gap: 30px;
+        }
+        
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .recipe-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+        }
+        
+        .recipe-detail-header {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .recipe-detail-image {
+            width: 300px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        
+        .recipe-detail-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .recipe-detail-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 0;
+        }
+        
+        .recipe-detail-description {
+            color: #666;
+            margin: 0;
+            line-height: 1.6;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .recipe-detail-description::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .recipe-detail-description::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .recipe-detail-description::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        .recipe-detail-meta {
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .recipe-detail-meta p {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .recipe-detail-meta strong {
+            color: var(--text-color);
+        }
+        
+        .recipe-detail-instructions {
+            margin-top: 20px;
+        }
+        
+        .recipe-detail-instructions h3 {
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+        
+        .comments-section {
+            flex: 1;
+            border-left: 1px solid var(--light-gray);
+            padding-left: 30px;
+            margin-top: 0;
+        }
+        
+        .comments-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .comment {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
         }
         
         .comment-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 6px;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        
+        .comment-author {
+            font-weight: bold;
+            color: var(--secondary-color);
+            font-size: 0.95rem;
         }
         
         .comment-date {
-            font-size: 11px;
-            color: var(--text-muted);
+            color: #999;
+            font-size: 0.85rem;
+            white-space: nowrap;
         }
         
-        .comment-content {
-            color: var(--text-color);
-            font-size: 14px;
+        .comment-text {
+            color: #333;
         }
         
-        .comment-form {
+        .new-comment {
+            margin-top: 20px;
+        }
+        
+        .new-comment h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .new-comment textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            margin-bottom: 10px;
+            resize: vertical;
+        }
+        
+        .my-feedbacks {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .feedback-item {
+            border-bottom: 1px solid var(--light-gray);
+            padding: 15px 0;
             display: flex;
-            gap: 12px;
-            align-items: flex-end;
+            justify-content: space-between;
+            align-items: center;
         }
         
-        .comment-form textarea {
+        .feedback-item:last-child {
+            border-bottom: none;
+        }
+        
+        .feedback-info {
             flex: 1;
-            min-height: 40px;
-            border-radius: 20px;
-            padding: 10px 16px;
-            resize: none;
         }
         
-        .comment-form button {
+        .feedback-title {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .feedback-date {
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        .feedback-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .comment-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .edit-btn, .delete-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+        }
+        
+        .edit-btn {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .edit-btn:hover {
+            background-color: #3dbeb6;
+        }
+        
+        .delete-btn {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background-color: #ff5252;
+        }
+        
+        .edit-btn i, .delete-btn i {
+            font-size: 0.9rem;
+        }
+        
+        footer {
             background-color: var(--primary-color);
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--light-gray);
+        }
+        
+        .copyright {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        /* Custom Notification Styles */
+        .custom-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 5px;
+            color: white;
             font-weight: 500;
-            transition: background-color 0.3s ease;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
         }
-        
-        .comment-form button:hover {
-            background-color: var(--primary-dark);
+
+        .custom-notification.show {
+            opacity: 1;
+            transform: translateX(0);
         }
-        
-        /* States */
-        .loading {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 20px;
+
+        .custom-notification.success {
+            background-color: #4CAF50;
         }
-        
-        .no-posts, .no-comments {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 20px;
-            font-style: italic;
+
+        .custom-notification.error {
+            background-color: #f44336;
         }
-        
-        .error {
-            color: #dc3545;
-            text-align: center;
-            padding: 20px;
+
+        .custom-notification.info {
+            background-color: #2196F3;
         }
         
         /* Responsive Design */
+        @media (max-width: 768px) {
+            .modal-content {
+                flex-direction: column;
+                width: 95%;
+                margin: 10% auto;
+            }
+            
+            .comments-section {
+                border-left: none;
+                border-top: 1px solid var(--light-gray);
+                padding-left: 0;
+                padding-top: 20px;
+                margin-top: 20px;
+            }
+            
+            .recipe-detail-header {
+                flex-direction: column;
+            }
+            
+            .recipe-detail-image {
+                width: 100%;
+                height: auto;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .recipe-detail-description {
+                max-height: none;
+                overflow-y: visible;
+            }
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .cancel-btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .cancel-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .feedback-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .feedback-form-container,
+        .my-feedbacks-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .feedback-form-container h2,
+        .my-feedbacks-container h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .feedback-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            color: var(--text-muted);
+            margin-left: 30px;
+        }
+        
+        .user-info span {
+            font-weight: 500;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .user-info a {
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 20px;
+            background-color: var(--bg-color);
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .user-info a:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
         @media (max-width: 768px) {
             .header-container {
                 padding: 12px 16px;
             }
             
-            .search-bar {
-                margin: 0 12px;
-            }
-            
-            .main-container {
-                padding: 16px;
-            }
-            
-            .create-post, .posts-container {
-                padding: 16px;
-            }
-            
-            .filter-options {
-                flex-wrap: wrap;
-            }
-            
-            .comment-form {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-        
-        @media (max-width: 480px) {
             .nav-links {
+                gap: 12px;
+                margin: 0 16px;
+            }
+            
+            .logo span {
                 display: none;
             }
             
-            .post-actions {
-                flex-wrap: wrap;
+            .user-info {
+                gap: 16px;
+                margin-left: 16px;
+            }
+            
+            .user-info span {
+                display: none;
+            }
+            
+            .user-info a {
+                padding: 8px;
+                border-radius: 50%;
+            }
+            
+            .user-info a::before {
+                content: '\f2f5';
+                font-family: 'Font Awesome 5 Free';
+                font-weight: 900;
+            }
+            
+            .user-info a span {
+                display: none;
+            }
+        }
+
+        #edit-feedback-modal .modal-content {
+            width: 90%;
+            max-width: 500px;
+            margin: 10% auto;
+            padding: 20px;
+        }
+        
+        #edit-feedback-modal h2 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        #edit-feedback-modal .feedback-form {
+            background: none;
+            padding: 0;
+            box-shadow: none;
+        }
+        
+        #edit-feedback-modal .form-group {
+            margin-bottom: 15px;
+        }
+        
+        #edit-feedback-modal label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        #edit-feedback-modal textarea {
+            min-height: 100px;
+            font-size: 0.95rem;
+            padding: 8px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+        }
+        
+        #edit-feedback-modal .submit-btn {
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            #edit-feedback-modal .modal-content {
+                width: 95%;
+                margin: 15% auto;
+            }
+        }
+
+        #delete-confirm-modal .modal-content {
+            width: 90%;
+            max-width: 450px;
+            margin: 10% auto;
+            padding: 25px;
+        }
+        
+        #delete-confirm-modal h2 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        #delete-confirm-modal p {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        #delete-confirm-modal .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        #delete-confirm-modal .submit-btn,
+        #delete-confirm-modal .cancel-btn {
+            padding: 10px 25px;
+            font-size: 1rem;
+            border-radius: 5px;
+            min-width: 100px;
+        }
+        
+        @media (max-width: 768px) {
+            #delete-confirm-modal .modal-content {
+                width: 95%;
+                margin: 15% auto;
             }
         }
     </style>
 </head>
 <body>
-<header>
-    <div class="header-container">
-        <a href="#" class="logo">
-            <i class="fas fa-utensils"></i>
-            <span>CulinaryDelight</span>
-        </a>
-        
-        <div class="search-bar">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Tìm kiếm công thức, đầu bếp...">
-        </div>
-        
-        <div class="nav-links">
-            <a th:href="@{/}" class="nav-link">
-                <i class="fas fa-home"></i>
-            </a>
-            <a th:href="@{/recipes}" class="nav-link">
-                <i class="fas fa-utensils"></i>
-            </a>
-            <a th:href="@{/blog}" class="nav-link active">
-                <i class="fas fa-comment-alt"></i>
-            </a>
-        </div>
-        
-        <div class="user-info" sec:authorize="isAuthenticated()">
-            <span sec:authentication="principal.username"></span>
-            <form id="logoutForm" th:action="@{/logout}" method="post" style="display:none"></form>
-            <a href="javascript:void(0)" onclick="document.getElementById('logoutForm').submit();">Đăng xuất</a>
-        </div>
-    </div>
-</header>
-    
-<div class="main-container">
-    <main>
-        <section class="create-post">
-            <h2>Viết đánh giá hoặc góp ý về công thức</h2>
-            <form id="post-form">
-                <div class="form-group">
-                    <label for="recipe-select">Chọn công thức:</label>
-                    <select id="recipe-select" required>
-                        <option value="">-- Chọn một công thức --</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="post-content">Nội dung đánh giá/góp ý:</label>
-                    <textarea id="post-content" rows="4" placeholder="Chia sẻ đánh giá hoặc góp ý về nguyên liệu, cách làm..." required></textarea>
-                </div>
-                <button type="submit">Đăng bài</button>
-            </form>
+    <main class="container">
+        <div th:replace="~{/asideuser :: aside}"></div>       
+        <section class="hero">
+            <h1>Chia sẻ cảm nhận về công thức nấu ăn</h1>
+            <p>Hãy chia sẻ trải nghiệm của bạn, giúp cộng đồng có thêm nhiều công thức tuyệt vời!</p>
         </section>
+        
+        <div class="tab-container">
+            <button class="tab active" data-tab="recipes-tab">Công thức</button>
+        </div>
+        
+        <div id="recipes-tab" class="tab-content active">
+            <div class="recipes">
+                <!-- Recipe cards will be loaded dynamically from API -->
+            </div>
+        </div>
+        
+        <!-- Recipe Detail Modal -->
+        <div id="recipe-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <div class="recipe-detail">
+                    <!-- Recipe details will be loaded dynamically -->
+                </div>
+                
+                <div class="comments-section">
+                    <h3>Bình luận</h3>
+                    <div class="comments">
+                        <!-- Comments will be loaded dynamically -->
+                    </div>
+                    
+                    <div class="new-comment">
+                        <h4>Thêm bình luận mới</h4>
+                        <textarea id="new-comment-text" placeholder="Viết bình luận của bạn..."></textarea>
+                        <button class="submit-btn" onclick="addComment()">Gửi bình luận</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Edit Comment Modal -->
+        <div id="edit-feedback-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeEditModal()">&times;</span>
+                <h2>Chỉnh sửa bình luận</h2>
+                <form class="feedback-form" id="edit-feedback-form">
+                    <input type="hidden" id="edit-feedback-id">
+                    
+                    <div class="form-group">
+                        <label for="edit-feedback-content">Nội dung:</label>
+                        <textarea id="edit-feedback-content" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Cập nhật bình luận</button>
+                </form>
+            </div>
+        </div>
 
-        <section class="posts-container">
-            <h2>Đánh giá & Góp ý gần đây</h2>
-            <div class="filter-options">
-                <button class="filter-btn active" data-filter="all">Tất cả</button>
-                <button class="filter-btn" data-filter="my-posts" sec:authorize="isAuthenticated()">Bài của tôi</button>
+        <!-- Delete Confirmation Modal -->
+        <div id="delete-confirm-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeDeleteModal()">&times;</span>
+                <h2>Xác nhận xóa</h2>
+                <p>Bạn có chắc chắn muốn xóa bình luận này?</p>
+                <div class="modal-actions">
+                    <button class="submit-btn" onclick="confirmDelete()">Xóa</button>
+                    <button class="cancel-btn" onclick="closeDeleteModal()">Hủy</button>
+                </div>
             </div>
-            <div id="posts-list">
-                <div class="loading">Đang tải bài đánh giá...</div>
-            </div>
-        </section>
+        </div>
     </main>
-        
-            <script>
-  // Khai báo biến ở phạm vi global
-let currentUser = null;
-let currentUserId = null;
-let allPosts = [];
-let csrfHeader = 'X-CSRF-TOKEN';
-let csrfToken = '';
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Ẩm Thực Việt</div>
+            <div class="footer-links">
+                <a href="#">Trang chủ</a>
+                <a href="#">Về chúng tôi</a>
+                <a href="#">Liên hệ</a>
+                <a href="#">Điều khoản sử dụng</a>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2025 Ẩm Thực Việt. Tất cả quyền được bảo lưu.
+        </div>
+    </footer>
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Lấy CSRF token từ thẻ meta
-    const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
-    const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
-    
-    if (csrfHeaderMeta && csrfTokenMeta) {
-        csrfHeader = csrfHeaderMeta.content;
-        csrfToken = csrfTokenMeta.content;
-    }
-    
-    console.log('CSRF Header:', csrfHeader);
-    console.log('CSRF Token:', csrfToken ? 'Available' : 'Not available');
-    
-    // Kiểm tra xem người dùng đã đăng nhập chưa
-    const userInfoElement = document.querySelector('.user-info span');
-    if (userInfoElement) {
-        currentUser = {
-            username: userInfoElement.textContent.trim()
-        };
-        
-        // Lấy userId từ API
-        fetch('/api/users/current')
-            .then(response => response.json())
-            .then(data => {
-                currentUserId = data.id;
-                console.log('Đã lấy userId:', currentUserId);
-            })
-            .catch(error => console.error('Lỗi khi lấy thông tin người dùng:', error));
-    }
-    
-    // Tải danh sách công thức
-    fetchRecipes();
-    
-    // Tải bài đánh giá
-    fetchPosts();
-    
-    // Xử lý sự kiện submit form
-    document.getElementById('post-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        createPost();
-    });
-    
-    // Xử lý lọc bài đánh giá
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            filterPosts(this.getAttribute('data-filter'));
-        });
-    });
-});
+    <script th:inline="javascript">
+        // Lấy CSRF token
+        const token = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
+        const header = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
 
-// Tạo bài đánh giá mới
-function createPost() {
-    if (!currentUser) {
-        alert('Vui lòng đăng nhập để đăng bài đánh giá');
-        return;
-    }
-    
-    if (!currentUserId) {
-        alert('Không thể xác định ID người dùng. Vui lòng tải lại trang.');
-        return;
-    }
-    
-    const recipeId = document.getElementById('recipe-select').value;
-    const content = document.getElementById('post-content').value;
-    
-    if (!recipeId || !content) {
-        alert('Vui lòng chọn công thức và nhập nội dung đánh giá');
-        return;
-    }
-    
-    console.log('Đang tạo bài đăng với userId:', currentUserId, 'recipeId:', recipeId);
-    
-    // Chuẩn bị headers với CSRF
-    const headers = {
-        'Content-Type': 'application/json'
-    };
-    
-    // Chỉ thêm CSRF nếu có
-    if (csrfToken) {
-        headers[csrfHeader] = csrfToken;
-    }
-    
-    fetch(`/api/posts/user/${currentUserId}/recipe/${recipeId}`, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({
-            content: content
-        })
-    })
-    .then(response => {
-        console.log('Status code:', response.status);
-        if (!response.ok) {
-            return response.text().then(text => {
-                console.error('Nội dung lỗi:', text);
-                throw new Error(`Không thể đăng bài: ${response.status} ${text}`);
-            });
+        // Biến lưu trữ danh sách công thức và người dùng hiện tại
+        let recipes = [];
+        let currentUser = null;
+        let feedbackToDelete = null;
+
+        // Load current user
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/api/users/current');
+                if (!response.ok) {
+                    throw new Error('Không thể lấy thông tin người dùng');
+                }
+                currentUser = await response.json();
+            } catch (error) {
+                console.error('Lỗi khi lấy thông tin người dùng:', error);
+                showNotification('Vui lòng đăng nhập để sử dụng tính năng này', 'error');
+            }
         }
-        return response.json();
-    })
-    .then(newPost => {
-        console.log('Post đã tạo:', newPost);
-        // Thêm bài mới vào đầu danh sách
-        allPosts.unshift(newPost);
-        
-        // Hiển thị lại danh sách
-        displayPosts(allPosts);
-        
-        // Reset form
-        document.getElementById('post-content').value = '';
-        document.getElementById('recipe-select').selectedIndex = 0;
-        
-        alert('Đăng bài thành công!');
-    })
-    .catch(error => {
-        console.error('Chi tiết lỗi:', error);
-        alert('Không thể đăng bài. Vui lòng thử lại sau. ' + error.message);
-    });
-}
 
-// Tương tự sửa các hàm khác: addComment, likePost...
-                
-                // Lấy danh sách công thức từ API
-                function fetchRecipes() {
-                    fetch('/api/recipes')
-                        .then(response => response.json())
-                        .then(data => {
-                            const recipeSelect = document.getElementById('recipe-select');
-                            data.forEach(recipe => {
-                                const option = document.createElement('option');
-                                option.value = recipe.id;
-                                option.textContent = recipe.name;
-                                recipeSelect.appendChild(option);
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Lỗi khi tải danh sách công thức:', error);
-                        });
+        // Load recipes from API
+        async function loadRecipesFromAPI() {
+            try {
+                const response = await fetch('/api/recipes');
+                if (!response.ok) {
+                    throw new Error('Không thể tải danh sách công thức');
                 }
+                recipes = await response.json();
                 
-                // Lấy bài đánh giá từ API
-                function fetchPosts() {
-                    fetch('/api/posts')
-                        .then(response => response.json())
-                        .then(data => {
-                            allPosts = data;
-                            displayPosts(data);
-                        })
-                        .catch(error => {
-                            console.error('Lỗi khi tải bài đánh giá:', error);
-                            document.querySelector('.loading').textContent = 'Không thể tải bài đánh giá. Vui lòng thử lại sau.';
-                        });
+                // Load recipes vào UI
+                loadRecipes();
+            } catch (error) {
+                console.error('Lỗi khi tải công thức:', error);
+                showNotification('Có lỗi xảy ra khi tải danh sách công thức', 'error');
+            }
+        }
+        
+        // Load recipes vào UI
+        async function loadRecipes() {
+            const recipesContainer = document.querySelector('.recipes');
+            recipesContainer.innerHTML = '';
+            
+            for (const recipe of recipes) {
+                // Lấy số lượng comment cho mỗi công thức
+                let commentsCount = 0;
+                try {
+                    const commentsResponse = await fetch(`/api/posts/recipe/${recipe.id}`);
+                    if (commentsResponse.ok) {
+                        const posts = await commentsResponse.json();
+                        commentsCount = posts.length;
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi tải số lượng comment:', error);
                 }
-                
-                // Hiển thị bài đánh giá
-                function displayPosts(posts) {
-                    const postsContainer = document.getElementById('posts-list');
-                    postsContainer.innerHTML = '';
+
+                const card = document.createElement('div');
+                card.className = 'recipe-card';
+                card.innerHTML = `
+                    <img src="${recipe.image || '/images/default-recipe.jpg'}" alt="${recipe.name}" class="recipe-image">
+                    <div class="recipe-content">
+                        <h3 class="recipe-title">${recipe.name}</h3>
+                        <p class="recipe-description">${recipe.description || ''}</p>
+                        <div class="recipe-actions">
+                            <button class="recipe-btn view-btn" onclick="openRecipeModal(${recipe.id})">Xem chi tiết</button>
+                            <div class="interaction">
+                                <button class="comment-btn" onclick="openRecipeModal(${recipe.id})">
+                                    <i class="fas fa-comment"></i> <span>${commentsCount}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                recipesContainer.appendChild(card);
+            }
+        }
+
+        // Hàm hiển thị thông báo tùy chỉnh
+        function showNotification(message, type = 'success') {
+            // Xóa thông báo cũ nếu có
+            const oldNotification = document.querySelector('.custom-notification');
+            if (oldNotification) {
+                oldNotification.remove();
+            }
+
+            // Tạo thông báo mới
+            const notification = document.createElement('div');
+            notification.className = `custom-notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Hiển thị thông báo
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+
+            // Tự động ẩn sau 3 giây
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+        
+        // Load comments for a recipe
+        async function loadComments(recipeId) {
+            try {
+                const commentsResponse = await fetch(`/api/posts/recipe/${recipeId}`);
+                if (commentsResponse.ok) {
+                    const posts = await commentsResponse.json();
+                    const commentsSection = document.querySelector('.comments');
+                    commentsSection.innerHTML = '';
                     
                     if (posts.length === 0) {
-                        postsContainer.innerHTML = '<div class="no-posts">Chưa có bài đánh giá nào</div>';
-                        return;
-                    }
-                    
-                    posts.forEach(post => {
-                        const postElement = document.createElement('div');
-                        postElement.className = 'post-item';
-                        postElement.dataset.userId = post.user.id;
-                        
-                        let recipeInfo = '';
-                        if (post.recipe) {
-                            recipeInfo = `
-                                <div class="post-recipe">
-                                    <h3>${post.recipe.name}</h3>
-                                    <a href="/recipe/view/${post.recipe.id}" class="view-recipe-btn">Xem công thức</a>
-                                </div>
-                            `;
-                        }
-                        
-                        postElement.innerHTML = `
-                            <div class="post-header">
-                                <div class="user-info">
-                                    <span class="username">${post.user.username}</span>
-                                    <span class="post-date">${formatDate(post.createdAt)}</span>
-                                </div>
-                            </div>
-                            ${recipeInfo}
-                            <div class="post-content">${post.content}</div>
-                            <div class="post-actions">
-                                <button class="like-btn" data-post-id="${post.id}">
-                                    <i class="far fa-thumbs-up"></i> 
-                                    <span class="likes-count">${post.likesCount}</span>
-                                </button>
-                                <button class="comment-btn" data-post-id="${post.id}">
-                                    <i class="far fa-comment"></i>
-                                    <span class="comments-count">${post.commentsCount}</span>
-                                </button>
-                            </div>
-                            <div class="comments-container" id="comments-${post.id}" style="display: none;">
-                                <div class="comments-list"></div>
-                                <form class="comment-form" data-post-id="${post.id}">
-                                    <textarea placeholder="Viết bình luận..." required></textarea>
-                                    <button type="submit">Gửi</button>
-                                </form>
-                            </div>
-                        `;
-                        
-                        postsContainer.appendChild(postElement);
-                        
-                        // Thêm sự kiện cho nút like
-                        postElement.querySelector('.like-btn').addEventListener('click', function() {
-                            likePost(post.id);
-                        });
-                        
-                        // Thêm sự kiện cho nút comment
-                        postElement.querySelector('.comment-btn').addEventListener('click', function() {
-                            toggleComments(post.id);
-                        });
-                        
-                        // Thêm sự kiện cho form comment
-                        postElement.querySelector('.comment-form').addEventListener('submit', function(e) {
-                            e.preventDefault();
-                            addComment(this, post.id);
-                        });
-                    });
-                }
-                
-                // Lọc bài đánh giá
-                function filterPosts(filter) {
-                    if (filter === 'all') {
-                        displayPosts(allPosts);
-                    } else if (filter === 'my-posts' && currentUser) {
-                        const myPosts = allPosts.filter(post => post.user.username === currentUser.username);
-                        displayPosts(myPosts);
-                    }
-                }
-                
-                // Tạo bài đánh giá mới
-                function createPost() {
-                    if (!currentUser) {
-                        alert('Vui lòng đăng nhập để đăng bài đánh giá');
-                        return;
-                    }
-                    
-                    if (!currentUserId) {
-                        alert('Không thể xác định ID người dùng. Vui lòng tải lại trang.');
-                        return;
-                    }
-                    
-                    const recipeId = document.getElementById('recipe-select').value;
-                    const content = document.getElementById('post-content').value;
-                    
-                    if (!recipeId || !content) {
-                        alert('Vui lòng chọn công thức và nhập nội dung đánh giá');
-                        return;
-                    }
-                    
-                    console.log('Đang tạo bài đăng với userId:', currentUserId, 'recipeId:', recipeId);
-                    
-                    // Chuẩn bị headers với CSRF
-                    const headers = {
-                        'Content-Type': 'application/json'
-                    };
-                    
-                    // Chỉ thêm CSRF nếu có
-                    if (csrfToken) {
-                        headers[csrfHeader] = csrfToken;
-                    }
-                    
-                    fetch(`/api/posts/user/${currentUserId}/recipe/${recipeId}`, {
-                        method: 'POST',
-                        headers: headers,
-                        body: JSON.stringify({
-                            content: content
-                        })
-                    })
-                    .then(response => {
-                        console.log('Status code:', response.status);
-                        if (!response.ok) {
-                            return response.text().then(text => {
-                                console.error('Nội dung lỗi:', text);
-                                throw new Error(`Không thể đăng bài: ${response.status} ${text}`);
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(newPost => {
-                        console.log('Post đã tạo:', newPost);
-                        // Thêm bài mới vào đầu danh sách
-                        allPosts.unshift(newPost);
-                        
-                        // Hiển thị lại danh sách
-                        displayPosts(allPosts);
-                        
-                        // Reset form
-                        document.getElementById('post-content').value = '';
-                        document.getElementById('recipe-select').selectedIndex = 0;
-                        
-                        alert('Đăng bài thành công!');
-                    })
-                    .catch(error => {
-                        console.error('Chi tiết lỗi:', error);
-                        alert('Không thể đăng bài. Vui lòng thử lại sau. ' + error.message);
-                    });
-                }
-                // Hiển thị/ẩn phần bình luận
-                function toggleComments(postId) {
-                    const commentsContainer = document.getElementById(`comments-${postId}`);
-                    
-                    if (commentsContainer.style.display === 'none') {
-                        // Tải bình luận khi hiển thị
-                        fetchComments(postId);
-                        commentsContainer.style.display = 'block';
+                        commentsSection.innerHTML = '<p>Chưa có bình luận nào.</p>';
                     } else {
-                        commentsContainer.style.display = 'none';
-                    }
-                }
-                
-                // Lấy bình luận từ API
-                function fetchComments(postId) {
-                    const commentsList = document.querySelector(`#comments-${postId} .comments-list`);
-                    commentsList.innerHTML = '<div class="loading">Đang tải bình luận...</div>';
-                    
-                    fetch(`/api/comments/post/${postId}`)
-                        .then(response => response.json())
-                        .then(comments => {
-                            commentsList.innerHTML = '';
-                            
-                            if (comments.length === 0) {
-                                commentsList.innerHTML = '<div class="no-comments">Chưa có bình luận nào</div>';
-                                return;
-                            }
-                            
-                            comments.forEach(comment => {
-                                const commentElement = document.createElement('div');
-                                commentElement.className = 'comment-item';
-                                commentElement.innerHTML = `
-                                    <div class="comment-header">
-                                        <span class="username">${comment.user.username}</span>
-                                        <span class="comment-date">${formatDate(comment.createdAt)}</span>
-                                    </div>
-                                    <div class="comment-content">${comment.content}</div>
-                                `;
-                                commentsList.appendChild(commentElement);
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Lỗi khi tải bình luận:', error);
-                            commentsList.innerHTML = '<div class="error">Không thể tải bình luận</div>';
+                        posts.forEach(post => {
+                            const commentElement = document.createElement('div');
+                            commentElement.className = 'comment';
+                            commentElement.setAttribute('data-post-id', post.id);
+                            const isCurrentUser = currentUser && post.user?.id === currentUser.id;
+                            commentElement.innerHTML = `
+                                <div class="comment-header">
+                                    <span class="comment-author">${post.user?.username || 'Không xác định'}</span>
+                                    <span class="comment-date">${new Date(post.createdAt).toLocaleDateString('vi-VN')}</span>
+                                    ${isCurrentUser ? `
+                                        <div class="comment-actions">
+                                            <button class="edit-btn" onclick="openEditCommentModal(${post.id})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="delete-btn" onclick="openDeleteCommentModal(${post.id})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <p class="comment-text">${post.content}</p>
+                            `;
+                            commentsSection.appendChild(commentElement);
                         });
-                }
-                
-                // Thêm bình luận mới
-                function addComment(form, postId) {
-                    if (!currentUser) {
-                        alert('Vui lòng đăng nhập để bình luận');
-                        return;
                     }
-                    
-                    const content = form.querySelector('textarea').value;
-                    if (!content) return;
-                    
-                    // Lấy userId từ API
-                    fetch('/api/users/current')
-                        .then(response => response.json())
-                        .then(userData => {
-                            const userId = userData.id;
-                            
-                            return fetch(`/api/comments/user/${userId}/post/${postId}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    content: content
-                                })
-                            });
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Không thể gửi bình luận');
-                            }
-                            return response.json();
-                        })
-                        .then(newComment => {
-                            // Cập nhật UI với bình luận mới
-                            // ...
-                        })
-                        .catch(error => {
-                            console.error('Lỗi khi gửi bình luận:', error);
-                            alert('Không thể gửi bình luận: ' + error.message);
-                        });
-                }
-                
-                // Thích bài đánh giá
-                function likePost(postId) {
-                    if (!currentUser) {
-                        alert('Vui lòng đăng nhập để thích bài đánh giá');
-                        return;
-                    }
-                    
-                    // Lấy userId từ API
-                    fetch('/api/users/current')
-                        .then(response => response.json())
-                        .then(userData => {
-                            const userId = userData.id;
-                            
-                            return fetch(`/api/posts/${postId}/like/${userId}`, {
-                                method: 'POST'
-                            });
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Không thể thích bài đánh giá');
-                            }
-                            return response.json();
-                        })
-                        .then(updatedPost => {
-                            // Cập nhật UI
-                            // ...
-                        })
-                        .catch(error => {
-                            console.error('Lỗi khi thích bài đánh giá:', error);
-                            alert('Không thể thích bài đánh giá: ' + error.message);
-                        });
-                }
-                
-                // Định dạng ngày tháng
-                function formatDate(dateString) {
-                    const date = new Date(dateString);
-                    return date.toLocaleDateString('vi-VN', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+
+                    // Cập nhật số lượng comment cho tất cả các nút comment của công thức này
+                    const commentCountElements = document.querySelectorAll(`.recipe-card[data-recipe-id="${recipeId}"] .comment-btn span, .recipe-detail .comment-btn span`);
+                    commentCountElements.forEach(element => {
+                        element.textContent = posts.length;
                     });
                 }
-            </script>
+            } catch (error) {
+                console.error('Lỗi khi tải bình luận:', error);
+                showNotification('Có lỗi xảy ra khi tải bình luận', 'error');
+            }
+        }
+
+        // Open Recipe Modal
+        async function openRecipeModal(recipeId) {
+            try {
+                const response = await fetch(`/api/recipes/${recipeId}`);
+                if (!response.ok) {
+                    throw new Error('Không thể lấy thông tin công thức');
+                }
+                const recipe = await response.json();
+                
+                const modal = document.getElementById('recipe-modal');
+                const recipeDetail = modal.querySelector('.recipe-detail');
+                
+                // Populate recipe details
+                recipeDetail.innerHTML = `
+                    <div class="recipe-detail-header">
+                        <img src="${recipe.image || '/images/default-recipe.jpg'}" alt="${recipe.name}" class="recipe-detail-image">
+                        <div class="recipe-detail-info">
+                            <h2 class="recipe-detail-title">${recipe.name}</h2>
+                            <p class="recipe-detail-description">${recipe.description || ''}</p>
+                            <div class="recipe-detail-meta">
+                                <p><strong>Đăng bởi:</strong> ${recipe.author || 'Không xác định'}</p>
+                                <p><strong>Ngày đăng:</strong> ${new Date(recipe.createdAt).toLocaleDateString('vi-VN')}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recipe-detail-instructions">
+                        <h3>Hướng dẫn nấu ăn</h3>
+                        <p>${recipe.instructions || 'Chưa có hướng dẫn'}</p>
+                    </div>
+                `;
+                
+                // Store current recipe ID for adding comments
+                modal.dataset.recipeId = recipeId;
+                
+                // Load comments
+                await loadComments(recipeId);
+                
+                // Show modal
+                modal.style.display = 'block';
+            } catch (error) {
+                console.error('Lỗi khi mở modal công thức:', error);
+                showNotification('Có lỗi xảy ra khi tải thông tin công thức', 'error');
+            }
+        }
+        
+        // Close Recipe Modal
+        function closeModal() {
+            document.getElementById('recipe-modal').style.display = 'none';
+        }
+        
+        // Close Edit Comment Modal
+        function closeEditModal() {
+            document.getElementById('edit-feedback-modal').style.display = 'none';
+        }
+        
+        // Update Comment
+        async function updateFeedback() {
+            if (!currentUser) {
+                showNotification('Vui lòng đăng nhập để cập nhật bình luận', 'error');
+                return;
+            }
+
+            const postId = parseInt(document.getElementById('edit-feedback-id').value);
+            const content = document.getElementById('edit-feedback-content').value;
+            
+            if (!postId || !content) {
+                showNotification('Vui lòng điền đầy đủ thông tin!', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/posts/${postId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [header]: token
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể cập nhật bình luận');
+                }
+
+                showNotification('Đã cập nhật bình luận thành công!', 'success');
+                closeEditModal();
+                
+                // Tải lại danh sách comment
+                const modal = document.getElementById('recipe-modal');
+                const recipeId = parseInt(modal.dataset.recipeId);
+                await loadComments(recipeId);
+                
+                // Cập nhật số lượng comment trong danh sách công thức
+                await loadRecipes();
+            } catch (error) {
+                console.error('Lỗi khi cập nhật bình luận:', error);
+                showNotification('Có lỗi xảy ra khi cập nhật bình luận', 'error');
+            }
+        }
+        
+        // Open Delete Confirmation Modal
+        function openDeleteModal(feedbackId) {
+            feedbackToDelete = feedbackId;
+            document.getElementById('delete-confirm-modal').style.display = 'block';
+        }
+
+        // Close Delete Confirmation Modal
+        function closeDeleteModal() {
+            document.getElementById('delete-confirm-modal').style.display = 'none';
+            feedbackToDelete = null;
+        }
+
+        // Delete Comment
+        async function confirmDelete() {
+            if (!feedbackToDelete) return;
+            
+            if (!currentUser) {
+                showNotification('Vui lòng đăng nhập để xóa bình luận', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/posts/${feedbackToDelete}`, {
+                    method: 'DELETE',
+                    headers: {
+                        [header]: token
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể xóa bình luận');
+                }
+
+                showNotification('Đã xóa bình luận thành công!', 'success');
+                closeDeleteModal();
+                
+                // Tải lại danh sách comment
+                const modal = document.getElementById('recipe-modal');
+                const recipeId = parseInt(modal.dataset.recipeId);
+                await loadComments(recipeId);
+                
+                // Cập nhật số lượng comment trong danh sách công thức
+                await loadRecipes();
+            } catch (error) {
+                console.error('Lỗi khi xóa bình luận:', error);
+                showNotification('Có lỗi xảy ra khi xóa bình luận', 'error');
+            }
+        }
+        
+        // Open Edit Comment Modal
+        async function openEditCommentModal(postId) {
+            try {
+                const response = await fetch(`/api/posts/${postId}`);
+                if (!response.ok) {
+                    throw new Error('Không thể lấy thông tin bình luận');
+                }
+                const post = await response.json();
+                
+                document.getElementById('edit-feedback-id').value = post.id;
+                document.getElementById('edit-feedback-content').value = post.content;
+                
+                document.getElementById('edit-feedback-modal').style.display = 'block';
+            } catch (error) {
+                console.error('Lỗi khi lấy thông tin bình luận:', error);
+                showNotification('Có lỗi xảy ra khi lấy thông tin bình luận', 'error');
+            }
+        }
+
+        // Open Delete Comment Modal
+        function openDeleteCommentModal(postId) {
+            feedbackToDelete = postId;
+            document.getElementById('delete-confirm-modal').style.display = 'block';
+        }
+
+        // Add Comment
+        async function addComment() {
+            if (!currentUser) {
+                showNotification('Vui lòng đăng nhập để bình luận', 'error');
+                return;
+            }
+
+            const modal = document.getElementById('recipe-modal');
+            const recipeId = parseInt(modal.dataset.recipeId);
+            const commentText = document.getElementById('new-comment-text').value.trim();
+            
+            if (!recipeId || !commentText) {
+                showNotification('Vui lòng nhập nội dung bình luận!', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/posts/user/${currentUser.id}/recipe/${recipeId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [header]: token
+                    },
+                    body: JSON.stringify({ content: commentText })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Không thể thêm bình luận');
+                }
+
+                document.getElementById('new-comment-text').value = '';
+                showNotification('Đã thêm bình luận thành công!', 'success');
+                
+                // Tải lại danh sách comment
+                await loadComments(recipeId);
+                
+                // Cập nhật số lượng comment trong danh sách công thức
+                await loadRecipes();
+            } catch (error) {
+                console.error('Lỗi khi thêm bình luận:', error);
+                showNotification('Có lỗi xảy ra khi thêm bình luận', 'error');
+            }
+        }
+        
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const recipeModal = document.getElementById('recipe-modal');
+            const editModal = document.getElementById('edit-feedback-modal');
+            const deleteModal = document.getElementById('delete-confirm-modal');
+            
+            if (event.target === recipeModal) {
+                recipeModal.style.display = 'none';
+            }
+            
+            if (event.target === editModal) {
+                editModal.style.display = 'none';
+            }
+
+            if (event.target === deleteModal) {
+                closeDeleteModal();
+            }
+        };
+
+        // DOM Content Loaded
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Load current user
+            await loadCurrentUser();
+            
+            // Load recipes từ API
+            await loadRecipesFromAPI();
+            
+            // Setup form submission
+            document.getElementById('edit-feedback-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                updateFeedback();
+            });
+        });
+    </script>
 </body>
 </html>
