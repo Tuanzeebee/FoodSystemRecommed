@@ -32,8 +32,17 @@
             <div class="card-body">
               <h5 class="card-title fw-semibold mb-4">Management Recipe</h5>
               <div class="d-flex justify-content-end mb-3">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
+                <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
                   <i class="ti ti-plus"></i> Add New Recipe
+                </button>
+                <div class="d-inline-block me-2">
+                  <input type="number" id="numRecipes" class="form-control" value="10" min="1" max="100" style="width: 100px;">
+                </div>
+                <button type="button" class="btn btn-success me-2" onclick="runScript1()">
+                  <i class="ti ti-player-play"></i> Run Get Recipe
+                </button>
+                <button type="button" class="btn btn-info" onclick="runScript2()">
+                  <i class="ti ti-player-play"></i> Run ChangeIcon
                 </button>
               </div>
               
@@ -256,6 +265,74 @@
       // Cập nhật href cho nút xác nhận xóa
       document.getElementById('confirmDeleteBtn').href = '/admin/recipes/delete/' + id;
     }
+
+    function runScript1() {
+      const numRecipes = document.getElementById('numRecipes').value;
+      const outputDiv = document.getElementById('scriptOutput');
+      outputDiv.style.display = 'block';
+      outputDiv.innerHTML = 'Đang chạy script 1...';
+      
+      fetch('/python/run-script1?num_recipes=' + numRecipes, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => response.text())
+      .then(data => {
+        outputDiv.innerHTML = data;
+      })
+      .catch(error => {
+        outputDiv.innerHTML = 'Lỗi: ' + error;
+      });
+    }
+
+    function runScript2() {
+      const outputDiv = document.getElementById('scriptOutput');
+      outputDiv.style.display = 'block';
+      outputDiv.innerHTML = 'Đang chạy script 2...';
+      
+      fetch('/python/run-script2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => response.text())
+      .then(data => {
+        outputDiv.innerHTML = data;
+      })
+      .catch(error => {
+        outputDiv.innerHTML = 'Lỗi: ' + error;
+      });
+    }
+
+    // Đóng output khi click ra ngoài
+    document.addEventListener('click', function(e) {
+      const outputDiv = document.getElementById('scriptOutput');
+      if (!e.target.closest('button') && !e.target.closest('#scriptOutput')) {
+        outputDiv.style.display = 'none';
+      }
+    });
   </script>
+
+  <style>
+    #scriptOutput {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      max-width: 400px;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+      z-index: 9999;
+    }
+  </style>
+
+  <div id="scriptOutput"></div>
 </body>
 </html>

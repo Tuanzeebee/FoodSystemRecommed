@@ -1,6 +1,5 @@
 package com.tuanzeebee.springboot.demosecurity.security;
 
-import com.tuanzeebee.springboot.demosecurity.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,7 +7,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class DemoSecurityConfig {
@@ -23,13 +22,11 @@ public class DemoSecurityConfig {
         this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
     }
 
-    // bcrypt bean definition
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // authenticationProvider bean definition
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
@@ -40,25 +37,29 @@ public class DemoSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        
         http.authorizeHttpRequests(configurer ->
-                        configurer
-                                .requestMatchers("/").hasRole("USER")
-                                .requestMatchers("/manager/**").hasRole("MANAGER")
-                                .requestMatchers("/admin/**").hasRole("ADMIN")
-                                .requestMatchers("assets/css/**", "assets/js/**", "assets/images/**","assets/libs","assets/libs").permitAll()
-                                .requestMatchers("/register/**").permitAll()
-                                .requestMatchers("/requirement-food","/").permitAll()
-                                .requestMatchers("/blog","/").permitAll()
-                                .requestMatchers("/relax","/").permitAll()
-                                .requestMatchers("/relax/**").permitAll()
-                                .requestMatchers("/api/recipes/**").permitAll()
-                                .requestMatchers("/api/ingredients/**").permitAll()
-                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                .requestMatchers("/api/manager/**").hasRole("MANAGER")
-                                .anyRequest().authenticated()
-                )
-                .formLogin(form ->
+                configurer
+                    // Các trang công khai
+                    .requestMatchers("/", "/login", "/register/**").permitAll()
+                    .requestMatchers("/requirement-food", "/relax", "/blog").permitAll()
+                    .requestMatchers("/relax/**").permitAll()
+                    
+                    // Tài nguyên tĩnh và trang lỗi
+                    .requestMatchers("/assets/**", "/css/**", "/js/**", "/images/**", "/libs/**").permitAll()
+                    .requestMatchers("/error/**", "/error").permitAll()
+                    
+                    // API endpoints
+                    .requestMatchers("/api/recipes/**", "/api/ingredients/**").permitAll()
+                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/api/manager/**").hasRole("MANAGER")
+                    
+                    // Các trang yêu cầu xác thực
+                    .requestMatchers("/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/manager/**").hasRole("MANAGER")
+                    .requestMatchers("/profile/**").authenticated()
+                    .anyRequest().authenticated()
+            )
+            .formLogin(form ->
                 form
                     .loginPage("/login")
                     .loginProcessingUrl("/authenticateTheUser")
@@ -66,10 +67,10 @@ public class DemoSecurityConfig {
                     .permitAll()
             )
             .logout(logout -> 
-            logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout")
-                .permitAll()
+                logout
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/login?logout")
+                    .permitAll()
             )
             .exceptionHandling(configurer ->
                 configurer

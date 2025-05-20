@@ -81,36 +81,110 @@
                 align-items: center;
             }
             
-            .user-dropdown {
-                margin-left: 15px;
+            .nav-item {
                 position: relative;
             }
             
-            .user-btn {
-                background: none;
-                border: none;
-                current: pointer;
+            .nav-link {
+                padding: 0.5rem;
+                cursor: pointer;
                 display: flex;
                 align-items: center;
+                transition: transform 0.3s ease;
+                text-decoration: none;
             }
             
-            .dropdown-content {
-                display: none;
+            .nav-link:hover {
+                transform: scale(1.1);
+            }
+            
+            .rounded-circle {
+                border-radius: 50%;
+                border: 2px solid #e74c3c;
+                transition: all 0.3s ease;
+                object-fit: cover;
+            }
+            
+            .rounded-circle:hover {
+                border-color: #c0392b;
+                box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+            }
+            
+            .dropdown-menu {
                 position: absolute;
                 right: 0;
-                background-color: white;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                border-radius: 5px;
-                padding: 10px;
-                min-width: 150px;
-                z-index: 1000;
+                top: 100%;
+                min-width: 220px;
+                padding: 10px 0;
+                margin-top: 10px;
+                background: #fff;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(10px);
+                transition: all 0.3s ease;
             }
             
-            .dropdown-content a {
-                color: #e74c3c;
-                display: block;
+            .dropdown-menu.show {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
+            
+            .message-body {
+                padding: 5px;
+            }
+            
+            .dropdown-item {
+                display: flex;
+                align-items: center;
+                padding: 12px 20px;
+                color: #333;
                 text-decoration: none;
-                padding: 5px 0;
+                transition: all 0.3s ease;
+                border-radius: 5px;
+                margin: 5px 10px;
+            }
+            
+            .dropdown-item:hover {
+                background: #f8f9fa;
+                color: #e74c3c;
+                transform: translateX(5px);
+            }
+            
+            .dropdown-item i {
+                margin-right: 10px;
+                font-size: 18px;
+                color: #e74c3c;
+            }
+            
+            .btn-outline-primary {
+                display: block;
+                width: calc(100% - 20px);
+                margin: 10px;
+                padding: 12px;
+                text-align: center;
+                border: 2px solid #e74c3c;
+                color: #e74c3c;
+                border-radius: 8px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                background: transparent;
+                cursor: pointer;
+            }
+            
+            .btn-outline-primary:hover {
+                background: #e74c3c;
+                color: #fff;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+            }
+
+            .navbar-nav {
+                list-style: none;
+                margin: 0;
+                padding: 0;
             }
         </style>
     </th:block>
@@ -130,38 +204,54 @@
                         <a th:href="@{/relax}">Relax</a>
                     </div>
                     <div class="user-section">
-                        <div class="user-dropdown">
-                            <button class="user-btn">
-                                <span sec:authentication="principal.username"></span>
-                                <i class="fas fa-caret-down" style="margin-left: 5px;"></i>
-                            </button>
-                            <div class="dropdown-content">
-                                <a href="javascript:void(0)" onclick="document.getElementById('logoutForm').submit();">Logout</a>
-                                <form id="logoutForm" th:action="@{/logout}" method="post" style="display:none">
-                                    <!-- CSRF token sẽ tự động được Thymeleaf thêm vào -->
-                                </form>
-                            </div>
-                        </div>
+                        <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
+                                  aria-expanded="false">
+                                  <img th:if="${user.avatar}" th:src="${user.avatar}" 
+                                       alt="Avatar" width="40" height="40" class="rounded-circle">
+                                  <img th:unless="${user.avatar}" src="../assets/images/profile/user-1.jpg" 
+                                       alt="Default Avatar" width="40" height="40" class="rounded-circle">
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="drop2">
+                                  <div class="message-body">
+                                    <a th:href="@{/profile}" class="dropdown-item">
+                                      <i class="fas fa-user"></i>
+                                      <span>My Profile</span>
+                                    </a>
+                                    <a href="javascript:void(0)" onclick="document.getElementById('logoutForm').submit();" 
+                                      class="btn-outline-primary">Logout</a>
+
+                                    <form id="logoutForm" th:action="@{/logout}" method="post" style="display:none">
+                                        <!-- CSRF token sẽ tự động được Thymeleaf thêm vào -->
+                                    </form>
+                                  </div>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                 </header>
             </div>
         </div>
         
         <script>
-            // Xử lý dropdown
-            document.querySelector('.user-btn').addEventListener('click', function() {
-                const dropdownContent = document.querySelector('.dropdown-content');
-                if (dropdownContent.style.display === 'none' || !dropdownContent.style.display) {
-                    dropdownContent.style.display = 'block';
-                } else {
-                    dropdownContent.style.display = 'none';
-                }
-            });
-            
-            // Đóng dropdown khi click ra ngoài
-            window.addEventListener('click', function(e) {
-                if (!e.target.matches('.user-btn') && !e.target.closest('.user-btn')) {
-                    document.querySelector('.dropdown-content').style.display = 'none';
+            document.addEventListener('DOMContentLoaded', function() {
+                const dropdownToggle = document.querySelector('.nav-link');
+                const dropdownMenu = document.querySelector('.dropdown-menu');
+
+                if (dropdownToggle && dropdownMenu) {
+                    dropdownToggle.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dropdownMenu.classList.toggle('show');
+                    });
+
+                    // Đóng dropdown khi click ra ngoài
+                    document.addEventListener('click', function(e) {
+                        if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                            dropdownMenu.classList.remove('show');
+                        }
+                    });
                 }
             });
         </script>

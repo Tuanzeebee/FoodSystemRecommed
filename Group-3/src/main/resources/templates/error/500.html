@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lỗi Server</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/assets/css/bootstrap.min.css}">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 offset-md-3 text-center">
+                <h1 class="display-1">500</h1>
+                <h2>Lỗi Server</h2>
+                <p class="lead">Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau.</p>
+                <a th:href="@{/}" class="btn btn-primary">Quay về trang chủ</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

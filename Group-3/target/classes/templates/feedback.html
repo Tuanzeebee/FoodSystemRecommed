@@ -855,15 +855,15 @@
                 </div>
                 
                 <div class="comments-section">
-                    <h3>Bình luận</h3>
+                    <h3>Bài đăng</h3>
                     <div class="comments">
                         <!-- Comments will be loaded dynamically -->
                     </div>
                     
                     <div class="new-comment">
-                        <h4>Thêm bình luận mới</h4>
-                        <textarea id="new-comment-text" placeholder="Viết bình luận của bạn..."></textarea>
-                        <button class="submit-btn" onclick="addComment()">Gửi bình luận</button>
+                        <h4>Thêm bài đăng mới</h4>
+                        <textarea id="new-comment-text" placeholder="Viết bài đăng của bạn..."></textarea>
+                        <button class="submit-btn" onclick="addComment()">Gửi bài đăng</button>
                     </div>
                 </div>
             </div>
@@ -873,7 +873,7 @@
         <div id="edit-feedback-modal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeEditModal()">&times;</span>
-                <h2>Chỉnh sửa bình luận</h2>
+                <h2>Chỉnh sửa bài đăng</h2>
                 <form class="feedback-form" id="edit-feedback-form">
                     <input type="hidden" id="edit-feedback-id">
                     
@@ -882,7 +882,7 @@
                         <textarea id="edit-feedback-content" required></textarea>
                     </div>
                     
-                    <button type="submit" class="submit-btn">Cập nhật bình luận</button>
+                    <button type="submit" class="submit-btn">Cập nhật bài đăng</button>
                 </form>
             </div>
         </div>
@@ -892,7 +892,7 @@
             <div class="modal-content">
                 <span class="close" onclick="closeDeleteModal()">&times;</span>
                 <h2>Xác nhận xóa</h2>
-                <p>Bạn có chắc chắn muốn xóa bình luận này?</p>
+                <p>Bạn có chắc chắn muốn xóa bài đăng này?</p>
                 <div class="modal-actions">
                     <button class="submit-btn" onclick="confirmDelete()">Xóa</button>
                     <button class="cancel-btn" onclick="closeDeleteModal()">Hủy</button>
@@ -1034,7 +1034,7 @@
                     commentsSection.innerHTML = '';
                     
                     if (posts.length === 0) {
-                        commentsSection.innerHTML = '<p>Chưa có bình luận nào.</p>';
+                        commentsSection.innerHTML = '<p>Chưa có bài đăng nào.</p>';
                     } else {
                         posts.forEach(post => {
                             const commentElement = document.createElement('div');
@@ -1069,8 +1069,8 @@
                     });
                 }
             } catch (error) {
-                console.error('Lỗi khi tải bình luận:', error);
-                showNotification('Có lỗi xảy ra khi tải bình luận', 'error');
+                console.error('Lỗi khi tải bài đăng:', error);
+                showNotification('Có lỗi xảy ra khi tải bài đăng', 'error');
             }
         }
 
@@ -1094,8 +1094,7 @@
                             <h2 class="recipe-detail-title">${recipe.name}</h2>
                             <p class="recipe-detail-description">${recipe.description || ''}</p>
                             <div class="recipe-detail-meta">
-                                <p><strong>Đăng bởi:</strong> ${recipe.author || 'Không xác định'}</p>
-                                <p><strong>Ngày đăng:</strong> ${new Date(recipe.createdAt).toLocaleDateString('vi-VN')}</p>
+                                <p><strong>Đăng bởi:</strong> ADMIN</p>
                             </div>
                         </div>
                     </div>
@@ -1132,7 +1131,7 @@
         // Update Comment
         async function updateFeedback() {
             if (!currentUser) {
-                showNotification('Vui lòng đăng nhập để cập nhật bình luận', 'error');
+                showNotification('Vui lòng đăng nhập để cập nhật bài đăng', 'error');
                 return;
             }
 
@@ -1155,10 +1154,10 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Không thể cập nhật bình luận');
+                    throw new Error('Không thể cập nhật bài đăng');
                 }
 
-                showNotification('Đã cập nhật bình luận thành công!', 'success');
+                showNotification('Đã cập nhật bài đăng thành công!', 'success');
                 closeEditModal();
                 
                 // Tải lại danh sách comment
@@ -1169,8 +1168,8 @@
                 // Cập nhật số lượng comment trong danh sách công thức
                 await loadRecipes();
             } catch (error) {
-                console.error('Lỗi khi cập nhật bình luận:', error);
-                showNotification('Có lỗi xảy ra khi cập nhật bình luận', 'error');
+                console.error('Lỗi khi cập nhật bài đăng:', error);
+                showNotification('Có lỗi xảy ra khi cập nhật bài đăng', 'error');
             }
         }
         
@@ -1191,7 +1190,7 @@
             if (!feedbackToDelete) return;
             
             if (!currentUser) {
-                showNotification('Vui lòng đăng nhập để xóa bình luận', 'error');
+                showNotification('Vui lòng đăng nhập để xóa bài đăng', 'error');
                 return;
             }
             
@@ -1204,10 +1203,10 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Không thể xóa bình luận');
+                    throw new Error('Không thể xóa bài đăng');
                 }
 
-                showNotification('Đã xóa bình luận thành công!', 'success');
+                showNotification('Đã xóa bài đăng thành công!', 'success');
                 closeDeleteModal();
                 
                 // Tải lại danh sách comment
@@ -1218,8 +1217,8 @@
                 // Cập nhật số lượng comment trong danh sách công thức
                 await loadRecipes();
             } catch (error) {
-                console.error('Lỗi khi xóa bình luận:', error);
-                showNotification('Có lỗi xảy ra khi xóa bình luận', 'error');
+                console.error('Lỗi khi xóa bài đăng:', error);
+                showNotification('Có lỗi xảy ra khi xóa bài đăng', 'error');
             }
         }
         
@@ -1228,7 +1227,7 @@
             try {
                 const response = await fetch(`/api/posts/${postId}`);
                 if (!response.ok) {
-                    throw new Error('Không thể lấy thông tin bình luận');
+                    throw new Error('Không thể lấy thông tin bài đăng');
                 }
                 const post = await response.json();
                 
@@ -1237,8 +1236,8 @@
                 
                 document.getElementById('edit-feedback-modal').style.display = 'block';
             } catch (error) {
-                console.error('Lỗi khi lấy thông tin bình luận:', error);
-                showNotification('Có lỗi xảy ra khi lấy thông tin bình luận', 'error');
+                console.error('Lỗi khi lấy thông tin bài đăng:', error);
+                showNotification('Có lỗi xảy ra khi lấy thông tin bài đăng', 'error');
             }
         }
 
@@ -1251,7 +1250,7 @@
         // Add Comment
         async function addComment() {
             if (!currentUser) {
-                showNotification('Vui lòng đăng nhập để bình luận', 'error');
+                showNotification('Vui lòng đăng nhập để đăng bài', 'error');
                 return;
             }
 
@@ -1260,7 +1259,7 @@
             const commentText = document.getElementById('new-comment-text').value.trim();
             
             if (!recipeId || !commentText) {
-                showNotification('Vui lòng nhập nội dung bình luận!', 'error');
+                showNotification('Vui lòng nhập nội dung bài đăng!', 'error');
                 return;
             }
             
@@ -1275,11 +1274,11 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Không thể thêm bình luận');
+                    throw new Error('Không thể thêm bài đăng');
                 }
 
                 document.getElementById('new-comment-text').value = '';
-                showNotification('Đã thêm bình luận thành công!', 'success');
+                showNotification('Đã thêm bài đăng thành công!', 'success');
                 
                 // Tải lại danh sách comment
                 await loadComments(recipeId);
@@ -1287,8 +1286,8 @@
                 // Cập nhật số lượng comment trong danh sách công thức
                 await loadRecipes();
             } catch (error) {
-                console.error('Lỗi khi thêm bình luận:', error);
-                showNotification('Có lỗi xảy ra khi thêm bình luận', 'error');
+                console.error('Lỗi khi thêm bài đăng:', error);
+                showNotification('Có lỗi xảy ra khi thêm bài đăng', 'error');
             }
         }
         

@@ -28,14 +28,16 @@ public class User {
     
     private String lastName;
     
+    @Column(name = "email")
     private String email;
     
+    @Column(name = "avatar")
     private String avatar;
     
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "bio", length = 1000)
     private String bio;
     
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
         name = "users_roles",
         joinColumns = @JoinColumn(name = "user_id"),

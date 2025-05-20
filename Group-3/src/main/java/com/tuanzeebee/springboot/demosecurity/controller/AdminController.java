@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,12 +57,17 @@ public class AdminController {
     }
     
     @GetMapping({"", "/", "/dashboard"})
-    public String dashboard(Model model) {
+    public String dashboard(Model model, Authentication authentication) {
         // Tổng số lượng
         long totalUsers = userService.countUsers();
         long totalRecipes = recipeService.countRecipes();
         long totalIngredients = ingredientService.countIngredients();
         long totalComments = postService.countPosts();
+
+        // Lấy thông tin user đang đăng nhập
+        String username = authentication.getName();
+        User currentUser = userService.findByUsername(username);
+        model.addAttribute("user", currentUser);
 
         // Thêm dữ liệu vào model
         model.addAttribute("totalUsers", totalUsers);

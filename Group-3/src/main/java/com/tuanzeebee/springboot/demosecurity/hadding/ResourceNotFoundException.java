@@ -1,4 +1,4 @@
-package com.tuanzeebee.springboot.hadding;
+package com.tuanzeebee.springboot.demosecurity.hadding;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

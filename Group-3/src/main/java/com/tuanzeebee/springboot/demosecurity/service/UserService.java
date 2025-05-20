@@ -117,4 +117,8 @@ public class UserService {
     public long countUsers() {
         return userRepository.count();
     }
+
+    public User save(User user) {
+        return userRepository.save(user);
+    }
 }

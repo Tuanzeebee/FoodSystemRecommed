@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa thông tin cá nhân</title>
+    <th:block th:insert="~{/asideuser :: headerfiles}"></th:block>
+    <style>
+        .edit-profile-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .edit-profile-header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .avatar-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .avatar-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #666;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .avatar-preview i {
+            font-size: 4rem;
+        }
+
+        .avatar-upload {
+            margin-top: 1rem;
+        }
+
+        .avatar-upload input[type="file"] {
+            display: none;
+        }
+
+        .avatar-upload label {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .avatar-upload label:hover {
+            background-color: #0056b3;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 0 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{/asideuser :: aside}"></div>
+    
+    <main class="edit-profile-container">
+        <div class="edit-profile-header">
+            <h1>Chỉnh sửa thông tin cá nhân</h1>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <form th:action="@{/profile/edit}" method="post" enctype="multipart/form-data">
+            <div class="avatar-section">
+                <div class="avatar-preview">
+                    <img th:if="${user.avatar}" th:src="${user.avatar}" alt="Avatar">
+                    <i th:unless="${user.avatar}" class="fas fa-user"></i>
+                </div>
+                <div class="avatar-upload">
+                    <label for="avatar">
+                        <i class="fas fa-camera"></i> Thay đổi ảnh đại diện
+                    </label>
+                    <input type="file" id="avatar" name="avatar" accept="image/*">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="firstName">Họ</label>
+                <input type="text" id="firstName" name="firstName" th:value="${user.firstName}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">Tên</label>
+                <input type="text" id="lastName" name="lastName" th:value="${user.lastName}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" th:value="${user.email}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="bio">Giới thiệu</label>
+                <textarea id="bio" name="bio" th:text="${user.bio}"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="currentPassword">Mật khẩu hiện tại</label>
+                <input type="password" id="currentPassword" name="currentPassword">
+            </div>
+
+            <div class="form-group">
+                <label for="newPassword">Mật khẩu mới</label>
+                <input type="password" id="newPassword" name="newPassword">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Xác nhận mật khẩu mới</label>
+                <input type="password" id="confirmPassword" name="confirmPassword">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Lưu thay đổi
+                </button>
+                <a th:href="@{/profile}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Hủy
+                </a>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        // Xử lý hiển thị ảnh preview khi chọn file
+        document.getElementById('avatar').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.querySelector('.avatar-preview');
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Avatar">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Xử lý hiển thị thông báo và chuyển hướng
+        document.addEventListener('DOMContentLoaded', function() {
+            const successAlert = document.querySelector('.alert-success');
+            const errorAlert = document.querySelector('.alert-danger');
+
+            if (successAlert) {
+                // Hiển thị thông báo thành công trong 3 giây
+                setTimeout(function() {
+                    window.location.href = '/profile';
+                }, 3000);
+            }
+
+            if (errorAlert) {
+                // Tự động ẩn thông báo lỗi sau 5 giây
+                setTimeout(function() {
+                    errorAlert.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html> 

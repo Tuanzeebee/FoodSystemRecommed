@@ -54,7 +54,7 @@
                         <h4 class="fw-semibold mb-3" th:text="${totalUsers + ' người dùng'}"></h4>
                         <h4 class="fw-semibold mb-3" th:text="${totalRecipes + ' món ăn'}"></h4>
                         <h4 class="fw-semibold mb-3" th:text="${totalIngredients + ' nguyên liệu'}"></h4>
-                        <h4 class="fw-semibold mb-3" th:text="${totalComments + ' bình luận'}"></h4>
+                        <h4 class="fw-semibold mb-3" th:text="${totalComments + ' Bài Đăng'}"></h4>
                       </div>
                       <div class="col-4">
                         <div class="d-flex justify-content-center">
@@ -99,7 +99,7 @@
         name: 'Nguyên liệu',
         data: [totalIngredients]
       }, {
-        name: 'Bình luận',
+        name: 'Bài Đăng',
         data: [totalComments]
       }],
       chart: {
@@ -152,7 +152,7 @@
         type: 'donut',
         width: 180
       },
-      labels: ['Người dùng', 'Món ăn', 'Nguyên liệu', 'Bình luận'],
+      labels: ['Người dùng', 'Món ăn', 'Nguyên liệu', 'Bài Đăng'],
       plotOptions: {
         pie: {
           startAngle: -90,
