@@ -270,7 +270,7 @@
       const numRecipes = document.getElementById('numRecipes').value;
       const outputDiv = document.getElementById('scriptOutput');
       outputDiv.style.display = 'block';
-      outputDiv.innerHTML = 'Đang chạy script 1...';
+      outputDiv.innerHTML = '<div class="alert alert-info">🔄 Đang chạy script getdatarecipes.py...</div>';
       
       fetch('/python/run-script1?num_recipes=' + numRecipes, {
         method: 'POST',
@@ -278,19 +278,56 @@
           'Content-Type': 'application/json',
         }
       })
-      .then(response => response.text())
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => {
+            throw new Error(text || 'Network response was not ok');
+          });
+        }
+        return response.text();
+      })
       .then(data => {
-        outputDiv.innerHTML = data;
+        if (data.includes('Lỗi:')) {
+          outputDiv.innerHTML = '<div class="alert alert-danger">❌ ' + data + '</div>';
+        } else {
+          // Tìm thông tin thời gian trong output
+          const timeMatch = data.match(/Tổng thời gian: (.*?)(?:\n|$)/);
+          const timeStr = timeMatch ? timeMatch[1].trim() : '';
+          
+          // Tìm thông tin kết quả trong output
+          const resultMatch = data.match(/✅ (.*?)(?:\n|$)/);
+          const resultStr = resultMatch ? resultMatch[1].trim() : '';
+          
+          // Tìm thông tin thời gian bắt đầu và kết thúc
+          const startTimeMatch = data.match(/Bắt đầu: (.*?)(?:\n|$)/);
+          const endTimeMatch = data.match(/Kết thúc: (.*?)(?:\n|$)/);
+          
+          const startTime = startTimeMatch ? startTimeMatch[1].trim() : '';
+          const endTime = endTimeMatch ? endTimeMatch[1].trim() : '';
+          
+          outputDiv.innerHTML = `
+            <div class="alert alert-success">
+              <h5>✅ Script chạy thành công!</h5>
+              <div class="mt-2">
+                <p><strong>⏱️ Thời gian chạy:</strong> ${timeStr}</p>
+                <p><small class="text-muted">Bắt đầu: ${startTime}</small></p>
+                <p><small class="text-muted">Kết thúc: ${endTime}</small></p>
+              </div>
+              <p class="mt-2">${resultStr}</p>
+            </div>
+          `;
+        }
       })
       .catch(error => {
-        outputDiv.innerHTML = 'Lỗi: ' + error;
+        console.error('Error:', error);
+        outputDiv.innerHTML = '<div class="alert alert-danger">❌ Lỗi: ' + error.message + '</div>';
       });
     }
 
     function runScript2() {
       const outputDiv = document.getElementById('scriptOutput');
       outputDiv.style.display = 'block';
-      outputDiv.innerHTML = 'Đang chạy script 2...';
+      outputDiv.innerHTML = '<div class="alert alert-info">🔄 Đang chạy script changeicon.py...</div>';
       
       fetch('/python/run-script2', {
         method: 'POST',
@@ -298,12 +335,49 @@
           'Content-Type': 'application/json',
         }
       })
-      .then(response => response.text())
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => {
+            throw new Error(text || 'Network response was not ok');
+          });
+        }
+        return response.text();
+      })
       .then(data => {
-        outputDiv.innerHTML = data;
+        if (data.includes('Lỗi:')) {
+          outputDiv.innerHTML = '<div class="alert alert-danger">❌ ' + data + '</div>';
+        } else {
+          // Tìm thông tin thời gian trong output
+          const timeMatch = data.match(/Tổng thời gian: (.*?)(?:\n|$)/);
+          const timeStr = timeMatch ? timeMatch[1].trim() : '';
+          
+          // Tìm thông tin kết quả trong output
+          const resultMatch = data.match(/✅ (.*?)(?:\n|$)/);
+          const resultStr = resultMatch ? resultMatch[1].trim() : '';
+          
+          // Tìm thông tin thời gian bắt đầu và kết thúc
+          const startTimeMatch = data.match(/Bắt đầu: (.*?)(?:\n|$)/);
+          const endTimeMatch = data.match(/Kết thúc: (.*?)(?:\n|$)/);
+          
+          const startTime = startTimeMatch ? startTimeMatch[1].trim() : '';
+          const endTime = endTimeMatch ? endTimeMatch[1].trim() : '';
+          
+          outputDiv.innerHTML = `
+            <div class="alert alert-success">
+              <h5>✅ Script chạy thành công!</h5>
+              <div class="mt-2">
+                <p><strong>⏱️ Thời gian chạy:</strong> ${timeStr}</p>
+                <p><small class="text-muted">Bắt đầu: ${startTime}</small></p>
+                <p><small class="text-muted">Kết thúc: ${endTime}</small></p>
+              </div>
+              <p class="mt-2">${resultStr}</p>
+            </div>
+          `;
+        }
       })
       .catch(error => {
-        outputDiv.innerHTML = 'Lỗi: ' + error;
+        console.error('Error:', error);
+        outputDiv.innerHTML = '<div class="alert alert-danger">❌ Lỗi: ' + error.message + '</div>';
       });
     }
 

@@ -2,6 +2,10 @@ import mysql.connector
 import os
 from dotenv import load_dotenv
 import unicodedata  # Thư viện để chuẩn hóa chuỗi tiếng Việt (không bắt buộc dùng)
+import io
+import sys
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 # Load environment variables from .env file
 load_dotenv()

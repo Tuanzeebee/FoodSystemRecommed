@@ -56,6 +56,7 @@ public class DemoSecurityConfig {
                                 .requestMatchers("/api/ingredients/**").permitAll()
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/api/manager/**").hasRole("MANAGER")
+                                .requestMatchers("/python/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
                 .formLogin(form ->
@@ -76,7 +77,7 @@ public class DemoSecurityConfig {
                     .accessDeniedPage("/error/access-denied")
             )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/**")
+                .ignoringRequestMatchers("/api/**", "/python/**")
             );
             
         return http.build();

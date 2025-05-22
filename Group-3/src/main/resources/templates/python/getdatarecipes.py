@@ -4,9 +4,42 @@ import os
 import time
 import sys
 from datetime import datetime
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 from dotenv import load_dotenv
 import re  # Vẫn giữ reเผื่อ có trường hợp cần thiết, dù TheMealDB ít HTML hơn
+
+# Cấu hình encoding cho Windows
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+
+def format_time(seconds):
+    """Chuyển đổi số giây thành định dạng thời gian dễ đọc"""
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = seconds % 60
+    if hours > 0:
+        return f"{int(hours)} giờ {int(minutes)} phút {int(seconds)} giây"
+    elif minutes > 0:
+        return f"{int(minutes)} phút {int(seconds)} giây"
+    else:
+        return f"{int(seconds)} giây"
+
+def print_time_info(start_time, end_time, message=""):
+    """In thông tin thời gian với định dạng đẹp"""
+    duration = end_time - start_time
+    print("\n" + "="*60)
+    print("THÔNG TIN THỜI GIAN CHẠY SCRIPT")
+    print("="*60)
+    print(f"⏱️  Bắt đầu: {datetime.fromtimestamp(start_time).strftime('%H:%M:%S %d/%m/%Y')}")
+    print(f"⏱️  Kết thúc: {datetime.fromtimestamp(end_time).strftime('%H:%M:%S %d/%m/%Y')}")
+    print(f"⏱️  Tổng thời gian: {format_time(duration)}")
+    if message:
+        print("\n" + "="*60)
+        print("KẾT QUẢ")
+        print("="*60)
+        print(f"✅ {message}")
+    print("="*60 + "\n")
 
 # Lấy đường dẫn thư mục hiện tại của file Python
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +64,7 @@ if not DB_USER or not DB_PASSWORD or not DB_NAME:
     raise ValueError("Vui lòng cấu hình đầy đủ thông tin database trong file .env (DB_USER, DB_PASSWORD, DB_NAME)")
 
 # Initialize Translator
-translator = Translator()
+translator = GoogleTranslator(source='auto', target='vi')
 
 
 # --- Helper Functions ---
@@ -49,37 +82,20 @@ def translate_text(text, dest_lang='vi'):
         return ""
 
     try:
-        translated = translator.translate(original_text, dest=dest_lang)
-
-        if not translated or not translated.text or not translated.text.strip():
+        # Thêm delay để tránh rate limit
+        time.sleep(1)
+        
+        # Sử dụng GoogleTranslator trực tiếp
+        translated_text = translator.translate(original_text)
+        
+        if not translated_text:
             print(f"Cảnh báo: Dịch thuật cho '{original_text}' trả về kết quả rỗng. Sử dụng văn bản gốc.")
             return original_text
 
-        translated_text_clean = translated.text.strip()
-
-        # Kịch bản 1: Dịch thành công rõ rệt (nguồn khác đích VÀ văn bản thay đổi)
-        if translated.src != dest_lang and original_text.lower() != translated_text_clean.lower():
-            print(f"Đã dịch: '{original_text}' ({translated.src}) -> '{translated_text_clean}' ({dest_lang})")
-            time.sleep(0.5)
-            return translated_text_clean
-        # Kịch bản 2: Ngôn ngữ nguồn được phát hiện là ngôn ngữ đích (src == dest_lang)
-        elif translated.src == dest_lang:
-            print(
-                f"Thông tin: Văn bản '{original_text}' (src={translated.src}) -> '{translated_text_clean}' (dest={dest_lang}). "
-                f"Ngôn ngữ nguồn có thể đã là đích hoặc dịch không thay đổi nhiều.")
-            return translated_text_clean  # Trả về bản dịch (có thể đã được chuẩn hóa bởi googletrans)
-        # Kịch bản 3: Nguồn khác đích, nhưng văn bản không thay đổi (tên riêng, từ không dịch được)
-        elif original_text.lower() == translated_text_clean.lower():
-            print(
-                f"Thông tin: Văn bản '{original_text}' ({translated.src}) không thay đổi sau khi dịch sang {dest_lang} ('{translated_text_clean}'). "
-                f"Có thể là tên riêng. Sử dụng kết quả (có thể đã chuẩn hóa).")
-            return translated_text_clean
-        # Kịch bản Fallback
-        else:
-            print(
-                f"Thông tin (Fallback): Văn bản '{original_text}' ({translated.src}) -> '{translated_text_clean}' ({dest_lang}). Sử dụng kết quả dịch.")
-            time.sleep(0.5)
-            return translated_text_clean
+        translated_text = translated_text.strip()
+        print(f"Đã dịch: '{original_text}' -> '{translated_text}'")
+        return translated_text
+        
     except Exception as e:
         print(f"Lỗi dịch thuật cho '{original_text}': {e}. Sử dụng văn bản gốc.")
         return original_text
@@ -149,8 +165,12 @@ def fetch_and_store_recipes_themealdb(num_recipes=10, query=""):
     num_recipes: Số lượng công thức muốn lấy.
     query: Từ khóa tìm kiếm (tên món ăn). Nếu để trống, sẽ lấy ngẫu nhiên.
     """
+    start_time = time.time()
+    print(f"\n🔄 Bắt đầu lấy {num_recipes} công thức nấu ăn...")
+    
     conn = get_db_connection()
     if not conn:
+        print("❌ Không thể kết nối đến database!")
         return
 
     cursor = conn.cursor()
@@ -159,7 +179,7 @@ def fetch_and_store_recipes_themealdb(num_recipes=10, query=""):
     if query:
         search_url = f"{THEMEALDB_BASE_URL}/search.php"
         params = {'s': query}
-        print(f"Đang tìm kiếm công thức với query='{query}' trên TheMealDB...")
+        print(f"Đang tìm kiếm công thức với từ khóa '{query}' trên TheMealDB...")
         try:
             response = requests.get(search_url, params=params)
             response.raise_for_status()
@@ -168,124 +188,124 @@ def fetch_and_store_recipes_themealdb(num_recipes=10, query=""):
                 meals_to_process = data['meals'][:num_recipes]  # Lấy tối đa num_recipes kết quả
                 print(f"Tìm thấy {len(data['meals'])} công thức, sẽ xử lý tối đa {len(meals_to_process)} công thức.")
             else:
-                print(f"Không tìm thấy công thức nào với query='{query}'.")
+                print(f"Không tìm thấy công thức nào với từ khóa '{query}'.")
         except requests.exceptions.RequestException as e:
             print(f"Lỗi khi gọi API tìm kiếm TheMealDB: {e}")
         except ValueError as e:  # Lỗi parse JSON
             print(f"Lỗi khi phân tích JSON từ API tìm kiếm TheMealDB: {e}")
-            if 'response' in locals() and response: print(f"Response text: {response.text}")
+            if 'response' in locals() and response: print(f"Nội dung phản hồi: {response.text}")
     else:  # Không có query, lấy ngẫu nhiên
         print(f"Đang lấy {num_recipes} công thức ngẫu nhiên từ TheMealDB...")
         random_url = f"{THEMEALDB_BASE_URL}/random.php"
         for i in range(num_recipes):
             try:
                 # Thêm độ trễ nhỏ giữa các lần gọi API ngẫu nhiên
-                if i > 0: time.sleep(0.5)  # TheMealDB thường không quá khắt khe
-
-                response_random = requests.get(random_url)
-                response_random.raise_for_status()
-                data_random = response_random.json()
-                if data_random and data_random.get('meals') and data_random['meals'][0]:
-                    meal_data = data_random['meals'][0]
-                    meals_to_process.append(meal_data)
-                    print(f"Đã lấy công thức ngẫu nhiên {i + 1}/{num_recipes}: {meal_data.get('strMeal')}")
+                time.sleep(0.5)
+                response = requests.get(random_url)
+                response.raise_for_status()
+                data = response.json()
+                if data and data.get('meals'):
+                    meals_to_process.append(data['meals'][0])
+                    print(f"Đã lấy công thức ngẫu nhiên thứ {i+1}/{num_recipes}")
                 else:
-                    print(f"Không lấy được công thức ngẫu nhiên lần thứ {i + 1}.")
+                    print(f"Không thể lấy công thức ngẫu nhiên thứ {i+1}")
             except requests.exceptions.RequestException as e:
-                print(f"Lỗi khi gọi API lấy công thức ngẫu nhiên TheMealDB (lần {i + 1}): {e}")
+                print(f"Lỗi khi gọi API ngẫu nhiên TheMealDB: {e}")
             except ValueError as e:
-                print(f"Lỗi khi phân tích JSON từ API ngẫu nhiên TheMealDB (lần {i + 1}): {e}")
-                if 'response_random' in locals() and response_random: print(f"Response text: {response_random.text}")
-            except Exception as ex:
-                print(f"Lỗi không xác định khi lấy công thức ngẫu nhiên (lần {i + 1}): {ex}")
+                print(f"Lỗi khi phân tích JSON từ API ngẫu nhiên TheMealDB: {e}")
+                if 'response' in locals() and response: print(f"Nội dung phản hồi: {response.text}")
 
-    if not meals_to_process:
-        print("Không có dữ liệu công thức để xử lý.")
-        if conn: conn.close()
-        return
-
-    processed_count = 0
-    for meal_details in meals_to_process:
-        meal_id_api = meal_details.get('idMeal')
-        recipe_name_en = meal_details.get('strMeal')
-
-        if not recipe_name_en:  # Kiểm tra cơ bản
-            print(f"Cảnh báo: Công thức từ API (ID: {meal_id_api}) không có tên. Bỏ qua.")
-            continue
-
-        print(f"\n--- Đang xử lý công thức: '{recipe_name_en}' (ID API: {meal_id_api}) ---")
-
-        recipe_description_en = meal_details.get('strInstructions', '')
-        recipe_image = meal_details.get('strMealThumb')
-
-        # Trích xuất danh sách nguyên liệu từ TheMealDB
-        ingredients_en_objects = []
-        for i in range(1, 21):  # TheMealDB có từ strIngredient1 đến strIngredient20
-            ingredient_name = meal_details.get(f'strIngredient{i}')
-            # measure = meal_details.get(f'strMeasure{i}') # Thông tin định lượng, chưa dùng
-            if ingredient_name and ingredient_name.strip():
-                ingredients_en_objects.append({'name': ingredient_name.strip()})
-            else:
-                break  # Dừng nếu không còn tên nguyên liệu
-
-        recipe_name_vi = translate_text(recipe_name_en)
-        recipe_description_vi = translate_text(recipe_description_en)
-
-        if not recipe_name_vi:  # Đảm bảo tên công thức không rỗng sau dịch
-            print(f"Cảnh báo: Tên công thức '{recipe_name_en}' bị rỗng sau dịch. Sử dụng tên gốc.")
-            recipe_name_vi = recipe_name_en.strip()
-            if not recipe_name_vi:
-                print(f"Cảnh báo: Tên công thức gốc cũng rỗng cho ID API {meal_id_api}. Bỏ qua.")
-                continue
-
+    # Xử lý và lưu từng công thức
+    successful_recipes = 0
+    for meal in meals_to_process:
         try:
-            cursor.execute(
-                "INSERT INTO recipes (name, description, image) VALUES (%s, %s, %s)",
-                (recipe_name_vi, recipe_description_vi, recipe_image)
-            )
-            new_recipe_db_id = cursor.lastrowid
-            print(f"Đã lưu công thức '{recipe_name_vi}' với ID DB: {new_recipe_db_id}")
+            print(f"\n🔄 Đang xử lý công thức: {meal.get('strMeal', '')}")
+            
+            # Dịch các trường văn bản trước
+            print("🔄 Đang dịch thông tin công thức...")
+            name_vi = translate_text(meal.get('strMeal', ''))
+            category_vi = translate_text(meal.get('strCategory', ''))
+            area_vi = translate_text(meal.get('strArea', ''))
+            instructions_vi = translate_text(meal.get('strInstructions', ''))
+            
+            print(f"✅ Đã dịch các trường văn bản:")
+            print(f"   - Tên: {name_vi}")
+            print(f"   - Loại: {category_vi}")
+            print(f"   - Vùng: {area_vi}")
+            
+            # Xử lý nguyên liệu
+            ingredients = []
+            print("\n🔄 Đang xử lý nguyên liệu...")
+            for i in range(1, 21):  # TheMealDB có tối đa 20 nguyên liệu
+                ingredient = meal.get(f'strIngredient{i}')
+                measure = meal.get(f'strMeasure{i}')
+                if ingredient and ingredient.strip():
+                    # Dịch tên nguyên liệu
+                    ingredient_vi = translate_text(ingredient)
+                    # Dịch định lượng nếu có
+                    measure_vi = translate_text(measure) if measure else None
+                    
+                    print(f"   - Nguyên liệu: {ingredient_vi} ({measure_vi})")
+                    
+                    # Kiểm tra xem nguyên liệu đã tồn tại chưa
+                    cursor.execute("SELECT id FROM ingredients WHERE name = %s", (ingredient_vi,))
+                    result = cursor.fetchone()
+                    
+                    if result:
+                        ingredient_id = result[0]
+                        print(f"     ✓ Đã tồn tại với ID: {ingredient_id}")
+                    else:
+                        # Thêm nguyên liệu mới
+                        cursor.execute(
+                            "INSERT INTO ingredients (name, icon) VALUES (%s, %s)",
+                            (ingredient_vi, None)
+                        )
+                        ingredient_id = cursor.lastrowid
+                        print(f"     ✓ Đã thêm mới với ID: {ingredient_id}")
+                    
+                    ingredients.append((ingredient_id, measure_vi))
 
-            if ingredients_en_objects:
-                for ing_obj in ingredients_en_objects:
-                    ingredient_name_en_original = ing_obj.get('name')
-                    if ingredient_name_en_original:  # Đã được strip() ở trên
-                        db_ingredient_id, ingredient_name_vi_final = get_or_create_ingredient(cursor,
-                                                                                              ingredient_name_en_original)
+            print("\n🔄 Đang lưu công thức vào database...")
+            # Lưu công thức
+            cursor.execute("""
+                INSERT INTO recipes (name, description, image, category, area, instructions)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (
+                name_vi,
+                f"Công thức {category_vi} từ {area_vi}",
+                meal.get('strMealThumb'),
+                category_vi,
+                area_vi,
+                instructions_vi
+            ))
+            recipe_id = cursor.lastrowid
+            print(f"✅ Đã lưu công thức với ID: {recipe_id}")
 
-                        if db_ingredient_id and ingredient_name_vi_final is not None:
-                            try:
-                                cursor.execute(
-                                    "INSERT INTO recipe_ingredients (recipe_id, ingredient_id) VALUES (%s, %s)",
-                                    (new_recipe_db_id, db_ingredient_id)
-                                )
-                                # Tên tiếng Anh đã được capitalize trong get_or_create_ingredient để log
-                                standardized_en_name_for_log = ingredient_name_en_original.strip().capitalize()
-                                print(
-                                    f"  -> Đã liên kết CT {new_recipe_db_id} với NL ID {db_ingredient_id} ('{standardized_en_name_for_log}' -> '{ingredient_name_vi_final}')")
-                            except mysql.connector.Error as err:
-                                if err.errno == 1062:  # Mã lỗi cho duplicate entry (nếu có UNIQUE constraint)
-                                    print(
-                                        f"  -> Liên kết CT {new_recipe_db_id} với NL ID {db_ingredient_id} ('{ingredient_name_vi_final}') đã tồn tại.")
-                                else:
-                                    print(
-                                        f"  -> Lỗi khi liên kết CT {new_recipe_db_id} với NL ID {db_ingredient_id} ('{ingredient_name_vi_final}'): {err}")
-                        else:
-                            print(
-                                f"  -> Bỏ qua liên kết cho nguyên liệu không hợp lệ: '{ingredient_name_en_original}' (Công thức '{recipe_name_en}')")
+            # Lưu liên kết nguyên liệu
+            print("🔄 Đang lưu liên kết nguyên liệu...")
+            for ingredient_id, measure in ingredients:
+                cursor.execute("""
+                    INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity)
+                    VALUES (%s, %s, %s)
+                """, (recipe_id, ingredient_id, measure))
+                print(f"   ✓ Đã lưu liên kết với nguyên liệu ID: {ingredient_id}")
 
-            conn.commit()
-            processed_count += 1
-            print(
-                f"--- Hoàn tất xử lý công thức '{recipe_name_en}' (ID API: {meal_id_api}, ID DB: {new_recipe_db_id}) ---")
+            successful_recipes += 1
+            print(f"✅ Đã hoàn thành xử lý công thức: {name_vi}")
 
         except mysql.connector.Error as err:
-            print(f"Lỗi khi lưu công thức '{recipe_name_vi}' (ID API: {meal_id_api}): {err}")
-            conn.rollback()
+            print(f"❌ Lỗi database khi xử lý công thức: {err}")
+        except Exception as e:
+            print(f"❌ Lỗi không xác định khi xử lý công thức: {e}")
 
-    if cursor: cursor.close()
-    if conn: conn.close()
-    print(f"\nHoàn thành! Đã xử lý và lưu thành công {processed_count} công thức từ TheMealDB.")
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    end_time = time.time()
+    message = f"Đã xử lý và lưu thành công {successful_recipes} công thức từ TheMealDB"
+    print_time_info(start_time, end_time, message)
+    return successful_recipes
 
 
 def main():
@@ -297,21 +317,17 @@ def main():
         except ValueError:
             print("Số lượng công thức không hợp lệ, sử dụng giá trị mặc định: 10")
 
-    print(f"Bắt đầu lấy {num_recipes} công thức nấu ăn...")
     start_time = time.time()
-    start_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"Thời gian bắt đầu: {start_datetime}")
+    print(f"\n🚀 Bắt đầu chạy script...")
+    print(f"📅 Thời gian bắt đầu: {datetime.fromtimestamp(start_time).strftime('%H:%M:%S %d/%m/%Y')}")
 
     try:
         fetch_and_store_recipes_themealdb(num_recipes)
     except Exception as e:
-        print(f"Lỗi không mong muốn: {e}")
+        print(f"❌ Lỗi không mong muốn: {e}")
     finally:
         end_time = time.time()
-        end_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        duration = end_time - start_time
-        print(f"\nThời gian kết thúc: {end_datetime}")
-        print(f"Tổng thời gian chạy: {duration:.2f} giây")
+        print_time_info(start_time, end_time)
 
 
 # --- Chạy Script ---
